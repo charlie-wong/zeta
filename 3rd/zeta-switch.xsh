@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2023-11-24T20:01:43+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # Cherry pick apps & tools, ignore if path not exist
 path-head-add "${ZETA_DIR}/3rd/tools" # Rust/Ruby Apps
@@ -10,20 +9,20 @@ path-head-add "${ZETA_DIR}/3rd/bin"   # Standalone Apps
 
 # RubyGems 第三方依赖软件包的安装位置 GEM_HOME
 # https://jekyllrb.com/docs/installation/ubuntu
+# 中科 https://mirrors.ustc.edu.cn/help/rubygems.html
+# 清华 https://mirrors.tuna.tsinghua.edu.cn/help/rubygems
 if [[ -d "${ZETA_DIR}/3rd/vendor/gems" ]]; then
   export GEM_HOME="${ZETA_DIR}/3rd/vendor/gems"
 fi
-# 中科 https://mirrors.ustc.edu.cn/help/rubygems.html
-# 清华 https://mirrors.tuna.tsinghua.edu.cn/help/rubygems
 
 # 终端显示 NodeJS 安装位置 $ npm config get prefix
+# 中科 https://mirrors.ustc.edu.cn/help/node.html
+# 清华 https://mirrors.tuna.tsinghua.edu.cn/help/nodejs-release
 if @zeta:xsh:has-cmd node; then
   NODE_PATH="$(command -v node)" # NodeJS 模块查找路径
   NODE_PATH="$(realpath -eq "${NODE_PATH}")" # 冒号分割列表
   export NODE_PATH="${NODE_PATH%/bin/node}/lib/node_modules"
 fi
-# 中科 https://mirrors.ustc.edu.cn/help/node.html
-# 清华 https://mirrors.tuna.tsinghua.edu.cn/help/nodejs-release
 
 # 终端显示当前 Go 环境变量 $ go env
 if @zeta:xsh:has-cmd go; then
@@ -37,22 +36,22 @@ if @zeta:xsh:has-cmd go; then
     export GOPATH="${GOROOT%/*}/modules" # => vendor/go/modules
   }
 
+  # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
+  # export GOCACHE="" # 编译缓存, 默认值 ~/.cache/go-build
+
   # Go 模块代理下载地址(国内加速镜像)
 # export GOPROXY="https://goproxy.io,direct" # 官方地址
   export GOPROXY="https://goproxy.cn,direct" # 七牛 CDN
 # export GOPROXY="https://mirrors.aliyun.com/goproxy,direct" # 阿里云
-
-  # export GOCACHE="" # 编译缓存, 默认值 ~/.cache/go-build
-  # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
 fi
 
 # https://doc.rust-lang.org/stable/cargo/index.html
+# 中科 https://mirrors.ustc.edu.cn/help/crates.io-index.html
+# 清华 https://mirrors.tuna.tsinghua.edu.cn/help/crates.io-index
 if [[ -d "${ZETA_DIR}/3rd/vendor/rust/cargo" ]]; then
   # 默认值 ~/.cargo 或 %USERPROFILE%/.cargo
   export CARGO_HOME="${ZETA_DIR}/3rd/vendor/rust/cargo"
 fi
-# 中科 https://mirrors.ustc.edu.cn/help/crates.io-index.html
-# 清华 https://mirrors.tuna.tsinghua.edu.cn/help/crates.io-index
 
 if @zeta:xsh:has-cmd java; then
   JAVA_HOME="$(command -v java)"
