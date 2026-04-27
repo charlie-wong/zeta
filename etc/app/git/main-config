@@ -1,11 +1,12 @@
 [init]
-  # main, trunk, master, devel, development
+  # main, trunk, master
   defaultBranch = "trunk"
 
-  # https://git-scm.com/docs/git-init     默认模板 /usr/share/git-core/templates
+  # NOTE 模板内点开头的文件不会拷贝复制，默认模板 /usr/share/git-core/templates
+  #      模板内文件会拷贝到新建仓库的 .git 目录内而非其 worktree
   # 优先级: git init --template > GIT_TEMPLATE_DIR > init.templateDir > 默认模板
-  templateDir = ~/.config/git/init-repo # 空目录(仓库创建后不拷贝任何文件)
-# templateDir = # 设置为空值亦可达到相同目的(仓库创建后不拷贝任何文件)
+  templateDir = ~/.config/git/templates/gitignore # 新建仓库有默认 .gitignore
+# templateDir = # 设置为空值仓库创建后亦不拷贝任何文件
 
 [push]
   # `git push` default action if no refspec is given, values can be one of:
@@ -21,14 +22,7 @@
   # true     => causes all pushes to be GPG signed
   # if-asked => sign pushes if remote server supports
   # https://people.kernel.org/monsieuricon/signed-git-pushes
-  gpgSign = false
-
-[commit]
-  # make GnuPG signed commit
-  gpgSign  = true
-
-  # https://www.conventionalcommits.org/en/v1.0.0
-  template = ~/.config/git/commit-style
+  gpgSign = false # 若开启需要 remote 服务器支持
 
 # NOTE https://git-scm.com/docs/git-log
 # if <format> omitted, then git use `medium` by default
@@ -37,13 +31,6 @@
 [pretty]
   # `git log --pretty=simple` equivalent to `git log "--pretty=format:* %H %s"`
   simple = "format:* %C(red)%h %C(green)%as %C(dim white)%ae %C(reset)%s"
-
-[tag]
-  # make GnuPG signed tag
-  gpgSign = true
-
-  # tag version sort order: newest comes first
-  sort = -version:refname
 
 [versionsort]
   suffix = '-lts'
@@ -58,8 +45,8 @@
   eol = native
 
   # false => commit & checkout both no conversion
-  # true  => commit CRLF -> LF, checkout CRLF <- LF
-  # input => commit CRLF -> LF, checkout no conversion
+  # true  => commit CRLF -> LF, checkout CRLF <- LF       适用 Windows
+  # input => commit CRLF -> LF, checkout no conversion    适用 Linux/macOS
   autocrlf = input
 
   # check if converting CRLF is reversible when autocrlf is active
@@ -70,26 +57,25 @@
 
   # default message editor, also see variable GIT_EDITOR
   # 优先级: GIT_EDITOR > core.editor > VISUAL > EDITOR > 默认值 vi
-  editor = nano
+  editor = nano # helix, nvim, vim, nano
+
+  # 默认模板 /usr/share/git-core/templates
+  # 优先级: core.hooksPath > ${GIT_DIR}/hooks
+  hooksPath = ~/.config/git/hooks
+
+  # 优先级: 命令行 > .gitignore(目录级) > .git/info/exclude > core.excludesFile
+  excludesFile = ~/.config/git/gitignore
 
   # true  => output paths of git cmd will quote unusual characters
   #          NOTE This cause `git status` output chinese messy code
   # false => bytes higher than 0x80 are not considered "unusual" any more
   quotepath = false
 
-  # https://git-scm.com/docs/gitignore
-  # 优先级: 命令行 > .gitignore(目录级) > .git/info/exclude > core.excludesFile
-  excludesFile = ~/.config/git/ignore-files
-
-  # 优先级: core.hooksPath > ${GIT_DIR}/hooks
-  # 默认模板位置 /usr/share/git-core/templates
-  hooksPath = ~/.config/git/core-hooks
-
   # git 命令分页器，git 显示大段内容时进行分页展示
   # core.pager 分页器全局设置, pager.<cmd> 分页器子命令设置
   # 优先级: GIT_PAGER > core.pager > PAGER > 默认值 less
   pager = less --quit-if-one-screen --RAW-CONTROL-CHARS --tabs=2
-# pager = "ov --quit-if-one-screen"
+# pager = ov --quit-if-one-screen
 
   # A comma separated list of common whitespace problems, prefix - to disable
   #   blank-at-eol          trail whitespaces at end of line as error, enabled by default
@@ -112,11 +98,11 @@
   log  = "ov --section-delimiter '^commit' --section-header-num 3"
   diff = "diff-so-fancy | ov --section-delimiter '^◯' --section-header-num 1"
 
-# NOTE => The Color Attributes
+# NOTE 颜色属性
 #   bold, dim, ul, blink, reverse, italic, strike
-# Attributes may be turned off by prefixing them with `no` or `no-`
+# 属性名称前加 no 或 -no 将关闭(turned off)相关属性
 #
-# NOTE => The Basic Colors
+# NOTE 基本颜色名称
 #   black, red, green, yellow, blue, magenta, cyan, white
 #   normal   占位符号(常规格式)
 #   default  显示恢复终端默认格式    reset  重置全部的颜色及属性
@@ -155,7 +141,7 @@
   func       = cyan  reverse # 修改位置/未改部分
   old        = red      bold # <修改前>内容
   new        = green    bold # <修改后>内容
-  whitespace = red  reverse # 高亮空白字符错误
+  whitespace = red   reverse # 高亮空白字符错误
 
 # https://github.com/so-fancy/diff-so-fancy 专用差异颜色设置
 [color "diff-highlight"]
@@ -238,6 +224,8 @@
 # => Speed Up Log/History
 [core]
   commitgraph = true
-  untrackedcache = true # 文件系统需要支持 mtime 特性
+  # 文件系统需要支持 mtime 特性
+  untrackedcache = true
+
 [fetch]
   writeCommitGraph = true

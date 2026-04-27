@@ -7,14 +7,14 @@
 # optional-footer
 # ------------------------------------------------------------------------------
 # PATCH 🟢 fix      make backward-compatible bug fixes or patches
-# MINOR 🔵 feat     add new functionality in backward-compatible manner
-# MAJOR 🔴          appends ! just after type/scope, but before the colon
+# MINOR 🔵 feat     new functionality in backward-compatible manner
+# MAJOR 🔴          type!: OR type(scope)!: for breaking API change
 #
-# 👽 init, docs, test/ci, perf, style, build/deps, refactor, revert, misc/chore
+# chore/ci, docs/style, build/deps, refactor/revert, perf/test, fix/feat
 #
-# 🔥 type! OR type(scope)! correlating with MAJOR
-# 🔥 BREAKING CHANGE: ⋯ description what/why/how ⋯
-# 🔥 Footers: BREAKING CHANGE: ⋯, KNOWN ISSUE: ⋯, CLOSE: ⋯
+# 🔥 CLOSE: ⋯
+# 🔥 BREAKING: ⋯
+# 🔥 KNOWN ISSUE: ⋯
 # ------------------------------------------------------------------------------
 # https://www.conventionalcommits.org/en/v1.0.0/
 # ------------------------------------------------------------------------------
