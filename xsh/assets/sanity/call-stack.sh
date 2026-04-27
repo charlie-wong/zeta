@@ -1,8 +1,7 @@
 #!/usr/bin/bash
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
-# SPDX-FileCopyrightText: 2023 Charlie WONG <charlie-wong@outlook.com>
-# Created By: Charlie WONG 2023-11-29T20:13:29+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
 
 # LINENO 表示当前行号
 # NOTE 启动 Shell 后 立即执行 echo $LINENO, 则显示结果为 1

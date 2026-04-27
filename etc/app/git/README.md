@@ -1,6 +1,6 @@
 # Personal Git Setup
 
-Git 用户默认配置目录 `~/.config/git`
+Git 用户默认配置目录 `~/.config/git`, 默认配置文件 `~/.gitconfig`
 
 `git init --template path/to/foo` 会将 foo 目录下的非<点>开头的文件拷贝复制到新建仓库的 .git 目录，
 若需要将文件拷贝至 worktree 则做如下配置即可：

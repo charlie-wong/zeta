@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2023-11-24T20:01:43+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # shellcheck shell=bash
 # NOTE https://www.shellcheck.net/wiki
@@ -72,7 +71,7 @@ fi
 # echo "${LINENO}: BS=[${BASH_SOURCE[@]}] \$0=[$0] \$@=[$@]"
 # echo "${LINENO}: PID=$$, UID=${UID}, GID=${GID}, PWD=${PWD}"
 
-ZETA_REPO_URL="https://github.com/xwlc/zeta"
+ZETA_REPO_URL="https://github.com/charlie-wong/zeta"
 if command -v git > /dev/null && [ -d "${ZETA_DIR}/.git" ]; then
   ZETA_COMMIT="$(cd "${ZETA_DIR}" && git rev-parse HEAD)"
   ZETA_REPO_DIR="$(cd "${ZETA_DIR}" && git rev-parse --show-toplevel)"
@@ -85,10 +84,6 @@ source "${ZETA_DIR}/xsh/colors.xsh"
 source "${ZETA_DIR}/xsh/alias.xsh"
 source "${ZETA_DIR}/xsh/memo.xsh"
 source "${ZETA_DIR}/xsh/main.xsh"
-
-if [[ -f "/me/priv/${USER}/${USER}.xsh" ]]; then
-  source "/me/priv/${USER}/${USER}.xsh"
-fi
 
 # 1s = 1000ms, 1ms = 1000μs, 1us = 1000ns, 1ns = 1000ps
 # ms(millisecond), μs(microsecond), ns(nanosecond), ps(picosecond)

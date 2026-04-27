@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
-# SPDX-FileCopyrightText: 2023 Charlie WONG <charlie-wong@outlook.com>
-# Created By: Charlie WONG 2023-04-08T13:47:32+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
 
 # NOTE 默认补全脚本位置 /usr/share/zsh/* 和 /usr/local/share/zsh/*
 if [[ -d  "${ZETA_DIR}/xsh/assets/comps/zsh" ]]; then

@@ -1,7 +1,5 @@
-<div align="center">
-
 # Zeta
 
-All about dotfiles and configurations.
+个人终端配置文件，工具及脚本。
 
-</div>
+- `xcmd ...` 执行 **xsh/bin** 目录下脚本文件

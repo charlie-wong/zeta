@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
-# SPDX-FileCopyrightText: 2023 Charlie WONG <charlie-wong@outlook.com>
-# Created By: Charlie WONG 2023-12-22T21:04:48+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
 
 # https://superuser.com/questions/288714
 # https://zhuanlan.zhihu.com/p/464117825

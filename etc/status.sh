@@ -1,8 +1,7 @@
 #!/usr/bin/bash
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2024-05-26T00:01:02+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # ${0%/*}  仅删除 $0 结尾文件名(匹配最短)
 # ${0##*/} 仅保留 $0 结尾文件名(匹配最长)
@@ -43,7 +42,7 @@ function tree-like-status() {
       *) return ;;
   esac
 
-  [[ -z "${MAX}" ]] && MAX=35
+  [[ -z "${MAX}" ]] && MAX=50
 
   if [[ ! -f "${dstSYS}" ]]; then
     printf "${symbol}$(@R3 diff) $(@Y3 "%-${MAX}s") -> $(@D9 ${dstSYS})\n" "${orgSRC}"
@@ -54,7 +53,7 @@ function tree-like-status() {
   fi
 }
 
-function etc-sys-apt() {
+function show-etc-sys-apt() {
   ! is-ubuntu && return
   echo "$(@D9 ${ZETA_DIR}/etc/)$(@B3 sys/apt)"
 
@@ -98,7 +97,7 @@ function etc-sys-apt() {
   echo
 }
 
-function etc-sys-fstab() {
+function show-etc-sys-fstab() {
   if ! is-ubuntu && ! is-arch; then
     return
   fi
@@ -113,13 +112,13 @@ function etc-sys-fstab() {
   echo
 }
 
-function etc-sys-hosts() {
+function show-etc-sys-hosts() {
   echo "$(@D9 ${ZETA_DIR}/etc/)$(@B3 sys/hosts)"
   tree-like-status ONE "sys/hosts" hosts "/etc/hosts"
   echo
 }
 
-function ect-sys-files() {
+function show-ect-sys-files() {
   echo "$(@D9 ${ZETA_DIR}/etc/)$(@B3 'sys/*.*')"
   local orgSRC dstSYS
 
@@ -152,24 +151,20 @@ function show-home-symlink() {
   fi
 }
 
-etc-sys-apt
-etc-sys-fstab
-etc-sys-hosts
-ect-sys-files
+show-etc-sys-apt
+show-etc-sys-fstab
+show-etc-sys-hosts
+show-ect-sys-files
 
 show-home-symlink ".ssh"
 show-home-symlink ".gnupg"
 show-home-symlink ".npmrc"
-show-home-symlink ".gitconfig"
-show-home-symlink ".hidden"
 show-home-symlink ".inputrc"
+show-home-symlink ".gitconfig"
 echo
 show-home-symlink ".config/git"
 show-home-symlink ".config/nvim"
-show-home-symlink ".config/ov/config.yaml"
+show-home-symlink ".config/ov"
 show-home-symlink ".config/Code/User/settings.json"
 echo
-show-home-symlink ".local/share/icons"
 show-home-symlink ".local/share/fonts"
-show-home-symlink ".local/share/konsole"
-show-home-symlink ".local/share/applications"

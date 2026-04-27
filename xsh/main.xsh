@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # 权限, POSIX ACL(Access Control Lists)
 # - https://savannah.nongnu.org/projects/acl

@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # 临时变量 _ycmd_ _yarg_ _yvar_ _ymsg_ _ytmp_ _yidx_ _ycnt_ _ynum_ _yval_ _flag_
 # 临时变量 _zcmd_ _zarg_ _zvar_ _zmsg_ _ztmp_ _zidx_ _zcnt_ _znum_ _zval_ _isok_

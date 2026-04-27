@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2024-04-25T07:23:48+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # 临时切换到 Root 权限的交互式终端
 alias login-as-root='/bin/sudo -i'

@@ -1,7 +1,6 @@
-# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 # SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
-# Created By: Charles Wong 2024-05-26T12:01:44+08:00 Asia/Shanghai
-# Repository: https://github.com/xwlc/zeta
+# Repository: https://github.com/charlie-wong/zeta
 
 # 10天干 => 甲  乙  丙  丁  戊  己  庚  辛  壬  癸
 # 12地支 => 子  丑  寅  卯  辰  巳  午  未  申  酉  戌  亥
