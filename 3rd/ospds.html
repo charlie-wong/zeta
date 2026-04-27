@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+<title>OSPDS</title>
+<style type="text/css">
+/* .XXX 对应 class 可多次引用, #XXX 对应 id 仅可用一次 */
+body {
+  margin: 15px;
+  font-size: 1.1em;
+  font-weight: 400;
+  background-color: #bdbdc6; /* AFAFB7 D9D9DE*/
+  font-family: Helvetica,Arial,Oxygen-Sans,Roboto,Ubuntu,sans-serif;
+}
+.group { height: 42px; min-width: 280px; }
+.group > ul { list-style: none; margin: 0; padding: 0; }
+.group > ul > li {
+  display: flex;
+  float: left;
+  height: 40px;
+/* line-height: 40px; */
+  margin: 0 0.15em 15px;
+  outline: none;
+  text-align: center;
+  width: 600px;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+}
+/* Link - Visited - Hover - Focus - Active */
+.group a { border-bottom: none;    text-decoration: none; }
+.group a:link    { color: #03F;    text-decoration: none; }
+.group a:active  { color: #141414; text-decoration: none; }
+.group a:focus   { color: #229231; text-decoration: none; }
+.group a:hover   { color: #E7E7E7; text-decoration: none; }
+.group a:visited { color: #03F;    text-decoration: none; }
+
+.group li a:active {
+  border-radius: 6px;
+  border-color: #1C71BE;
+}
+
+.list {
+  display: flex;
+  flex-direction: column; /* 垂直排列 */
+  align-items: center;    /* 子元素水平居中 */
+}
+
+.list li {
+  margin: 5px 0; /* 添加一些间距 */
+}
+
+.gbtn {
+/*background-color: #f8f9fa;*/
+  border-color: gray;
+  border-radius: 8px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.6) inset;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color .25s;
+}
+
+div {
+  margin: 8px; /* 外边框 */
+  /* border: 1px solid red; 显示边框 */
+}
+
+a {
+  display: flex;
+  align-items: center;
+  margin: 3px; /* 外边框 */
+}
+
+img {
+  height: 20px;
+  width: auto;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+</style>
+<body id="kits"></body>
+<script>
+function addSeperatorBox(it, hide=false) {
+  const a = document.createElement('a');
+  const li = document.createElement('li');
+  li.setAttribute('class', 'gbtn');
+
+  let cssStyle = 'background-color: #bdbdc6; cursor: default;';
+  if (hide) {
+    cssStyle += 'box-shadow: none;';
+    cssStyle += 'border-color: #bdbdc6;';
+  }
+  li.setAttribute('style', cssStyle);
+
+  li.appendChild(a);
+  it.appendChild(li);
+}
+
+function addSeperatorLine() {
+  let kits, div, ul;
+  kits = document.getElementById('kits');
+  div = document.createElement('div');
+  ul = document.createElement('ul');
+  div.setAttribute('class', "list");
+  addSeperatorBox(ul, true);
+  addSeperatorBox(ul, true);
+  div.setAttribute('class', "group");
+  div.setAttribute('style', "display: flex; justify-content: center; height: 10px;");
+  div.appendChild(ul); kits.appendChild(div);
+}
+
+function addStatusBox(it, name, path, flag=true) {
+  const li = document.createElement('li');
+  li.setAttribute('class', 'gbtn');
+
+  const who = (flag === 'gitlab') ? 'gitlab' : 'github';
+
+  const a = document.createElement('a');
+  a.innerHTML = name;
+  if (flag === 'gitlab') {
+    a.href = `https://gitlab.com/` + path + "/-/releases";
+  } else {
+    a.href = "https://github.com/" + path + "/releases/latest";
+  }
+
+  a.setAttribute('target', '_blank');
+  a.setAttribute('style', "color: blue;");
+
+  if (flag === 'tag') {
+    img = document.createElement('img');
+    img.alt = "release";
+    img.src = `https://img.shields.io/${who}/v/tag/` + path + "?color=green&label=stable";
+    a.appendChild(img);
+  } else if (flag) {
+    img = document.createElement('img');
+    img.alt = "release";
+    img.src = `https://img.shields.io/${who}/v/release/` + path + "?color=green&label=stable";
+    a.appendChild(img);
+  }
+  img = document.createElement('img');
+  img.alt = "activity";
+  img.src = `https://img.shields.io/${who}/commit-activity/m/` + path + "?color=blue&label=activity";
+  a.appendChild(img);
+  img = document.createElement('img');
+  img.alt = "commit";
+  img.src = `https://img.shields.io/${who}/last-commit/` + path + "?color=hotpink&label=commit";
+  a.appendChild(img);
+
+  a.addEventListener("mouseover", function() { a.style.color = "red"; }); // 鼠标悬停事件
+  a.addEventListener("mouseout",  function() { a.style.color = "blue"; }); // 鼠标离开事件
+
+  li.appendChild(a); it.appendChild(li);
+}
+
+function addTwoOSPS(osp1, osp2) {
+  const kits = document.getElementById('kits');
+  const div = document.createElement('div');
+  const ul = document.createElement('ul');
+  div.setAttribute('class', "list");
+  addStatusBox(ul, osp1.name, osp1.path, osp1.flag);
+  addStatusBox(ul, osp2.name, osp2.path, osp2.flag);
+  div.setAttribute('class', "group");
+  div.setAttribute('style', "display: flex; justify-content: center;");
+  div.appendChild(ul); kits.appendChild(div);
+}
+
+function generate() {
+  let kits, div, ul;
+  kits = document.getElementById('kits');
+
+  addTwoOSPS(
+    { name: "Kernel", path: "torvalds/linux", flag: 'tag' },
+    { name: "Ventoy", path: "ventoy/Ventoy",  flag: true  }  // C 操作系统安装器
+  );
+  addTwoOSPS(
+    { name: "Bevy",  path: "bevyengine/bevy", flag: true }, // Rust 游戏引擎
+    { name: "Aegis", path: "beemdevelopment/Aegis", flag: true } // Java 2FA
+  );
+  addTwoOSPS(
+    { name: "Lapce", path: "lapce/lapce", flag: true }, // Rust 集成开发环境 IDE
+    { name: "Helix", path: "helix-editor/helix", flag: true } // Rust 终端编辑器
+  );
+  addTwoOSPS(
+    { name: "VSCode", path: "microsoft/vscode", flag: true },
+    { name: "Vscodium", path: "VSCodium/vscodium", flag: true }
+  );
+  addTwoOSPS(
+    { name: "Rust", path: "rust-lang/rust", flag: true },
+    { name: "mdBook", path: "rust-lang/mdBook", flag: true }
+  );
+  addTwoOSPS(
+    { name: "Go", path: "golang/go", flag: 'tag' },
+    { name: "NodeJs", path: "nodejs/node", flag: true }
+  );
+
+  addSeperatorLine();
+
+  addTwoOSPS(
+    { name: "asciinema", path: "asciinema/asciinema", flag: true }, // Rust 终端会话记录
+    { name: "Contour", path: "contour-terminal/contour", flag: true } // C++ 终端模拟器
+  );
+  addTwoOSPS(
+    { name: "hexyl", path: "sharkdp/hexyl", flag: true }, // Rust 十六进制查看器
+    { name: "lazygit", path: "jesseduffield/lazygit", flag: true } // Go 终端 git 界面
+  );
+  addTwoOSPS(
+    { name: "eza", path: "eza-community/eza", flag: true }, // Rust 替换 ls
+    { name: "lsd", path: "lsd-rs/lsd", flag: true } // Rust 替换 ls
+  );
+  addTwoOSPS(
+    { name: "broot", path: "Canop/broot", flag: true }, // Rust 替代 cd
+    { name: "tree", path: "peteretelej/tree", flag: true } // Rust 递归树形显示
+  );
+  addTwoOSPS(
+    { name: "ov", path: "noborus/ov", flag: true }, // Go 分页器
+    { name: "bat", path: "sharkdp/bat", flag: true } // Rust 替代 cat
+  );
+  addTwoOSPS(
+    { name: "delta", path: "dandavison/delta", flag: true }, // Rust 分页器
+    { name: "ydiff", path: "ymattw/ydiff", flag: 'tag' } // Python 差异比较
+  );
+  addTwoOSPS(
+    { name: "sd", path: "chmln/sd", flag: true }, // Rust 替代 sed
+    { name: "diff-so-fancy", path: "so-fancy/diff-so-fancy", flag: true } // Perl 差异比较
+  );
+  addTwoOSPS(
+    { name: "fd", path: "sharkdp/fd", flag: true }, // Rust 替代 find
+    { name: "fzf", path: "junegunn/fzf", flag: true } // Go 模糊匹配
+  );
+  addTwoOSPS(
+    { name: "duf", path: "muesli/duf", flag: true }, // Go 替代 df
+    { name: "dust", path: "bootandy/dust", flag: true } // Rust 替代 du
+  );
+  addTwoOSPS(
+    { name: "procs", path: "dalance/procs", flag: true }, // Rust 替代 ps
+    { name: "bottom", path: "ClementTsang/bottom", flag: true } // Rust 系统监视器(btm)
+  );
+  addTwoOSPS(
+    { name: "iotop", path: "Tomas-M/iotop", flag: true }, // C 系统 IO 监控
+    { name: "nvtop", path: "Syllo/nvtop", flag: true } // C 进程 CPU/GPU 监控
+  );
+  addTwoOSPS(
+    { name: "hotspot", path: "KDAB/hotspot", flag: true }, // C++ 内核性能分析
+    { name: "imhex", path: "WerWolv/ImHex", flag: true } // C++ 十六进制查看器
+  );
+
+  addSeperatorLine();
+
+  addTwoOSPS(
+    { name: "xh", path: "ducaale/xh", flag: true }, // HTTP 请求
+    { name: "dog", path: "ogham/dog", flag: true } // 命令行 DNS 客户端
+  );
+  addTwoOSPS(
+    { name: "gping", path: "orf/gping", flag: true }, // Rust 替代 ping
+    { name: "nxtrace", path: "nxtrace/Ntrace-core", flag: true } // Go 可视化 route 追踪
+  );
+
+  addSeperatorLine();
+
+  addTwoOSPS(
+    { name: "jq", path: "jqlang/jq", flag: true }, // C 轻量命令行 JSON 解析器
+    { name: "serial-studio", path: "Serial-Studio/Serial-Studio", flag: true } // C++ 串口调试器
+  );
+  addTwoOSPS(
+    { name: "gifski", path: "ImageOptim/gifski", flag: true }, // Rust 优化 gif 图片
+    { name: "inkscape", path: "inkscape/inkscape", flag: 'gitlab' } // C++ 矢量图绘制 Gitlab
+  );
+  addTwoOSPS(
+    { name: "marktext", path: "marktext/marktext", flag: true }, // 基于 Node.js 和 Electron 框架
+    { name: "openshot", path: "OpenShot/openshot-qt", flag: true } // Python 和 C++ 视频编辑裁剪
+  );
+
+  return;
+  addTwoOSPS(
+    { name: "", path: "", flag: true },
+    { name: "", path: "", flag: true }
+  );
+
+//jaywcjlove/reference
+//rust-lang-cn/book-cn
+}
+generate();
+</script>
+</html>
