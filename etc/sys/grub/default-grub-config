@@ -33,7 +33,7 @@ GRUB_SAVEDEFAULT=true
 ## The timeout seconds before boot the default menu entry
 ## -1  waiting for user operation indefinitely
 ##  0  boot immediately without displaying menu
-GRUB_TIMEOUT=6
+GRUB_TIMEOUT=9
 ## menu   - GRUB_TIMEOUT is counted after  menu is displayed
 ## hidden - GRUB_TIMEOUT is counted before menu is displayed
 GRUB_TIMEOUT_STYLE=menu
