@@ -3,11 +3,12 @@
 ## https://www.scootersoftware.com/download.php
 ## Beyond Compare popular choice for data comparison.
 ##
+## bcompare4, bcompare5
 ## sudo apt install bcompare
 
 Types: deb
-URIs: https://www.scootersoftware.com
-Suites: bcompare4
+Architectures: amd64
+URIs: https://www.scootersoftware.com/debian
+Suites: bcompare5
 Components: non-free
 Signed-By: /etc/apt/keyrings/bcompare.gpg
-Architectures: amd64

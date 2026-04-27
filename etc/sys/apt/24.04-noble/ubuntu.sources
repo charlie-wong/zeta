@@ -11,10 +11,10 @@
 ##    <name>              packages that were part of initial release.
 ##    <name>-updates      Major bug fix or updates after Ubuntu release.
 ##    <name>-security     Security updates supported by the official ubuntu.
-##    <name>-proposed      Pre-release version of packages, NOT recommended.
 ##    <name>-backports    New version of APPs that are backported to work with
 ##                        <name> distro, and the software may NOT well tested.
 ##                        NOTE APPs in backports will NOT supported by Ubuntu.
+##    <name>-proposed     Pre-release version of packages, NOT recommended.
 ## Components:
 ##    main        Ubuntu Team maintained software which is under a free license.
 ##    restricted  contains proprietary driver and software supported by Ubuntu.
@@ -33,25 +33,26 @@
 # http://security.ubuntu.com/ubuntu       https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 #
 # NOTE 软件包 ubuntu-keyring 提供 /usr/share/keyrings/ubuntu-archive-keyring.gpg
-#      ubuntu-archive.gpg 拷贝自  /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 Types: deb deb-src
-URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble noble-updates
-Components: main universe restricted multiverse
-Signed-By: /etc/apt/keyrings/ubuntu-archive.gpg
-
-Types: deb
 URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
-Suites: noble-backports
+      http://archive.ubuntu.com/ubuntu
 Components: main universe restricted multiverse
-Signed-By: /etc/apt/keyrings/ubuntu-archive.gpg
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 ## Ubuntu security updates. Aside from the URIs and Suites,
 ## this should mirror your choices in the previous section.
 Types: deb
-URIs: http://security.ubuntu.com/ubuntu
-      https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble-security
+URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+      http://security.ubuntu.com/ubuntu
 Components: main universe restricted multiverse
-Signed-By: /etc/apt/keyrings/ubuntu-archive.gpg
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+Suites: noble-backports
+URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+      http://archive.ubuntu.com/ubuntu
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg

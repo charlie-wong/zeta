@@ -1,4 +1,4 @@
-## /etc/apt/sources.list.d/firefox.sources
+## /etc/apt/sources.list.d/mozilla-firefox.sources
 ##
 ## Mozilla Open Source Browser Firefox
 ## https://support.mozilla.org/en-US/kb/install-firefox-linux
@@ -6,8 +6,8 @@
 ## sudo apt install firefox
 
 Types: deb
+Architectures: amd64
 URIs: https://packages.mozilla.org/apt
 Suites: mozilla
 Components: main
-Signed-By: /etc/apt/keyrings/firefox.gpg
-Architectures: amd64
+Signed-By: /etc/apt/keyrings/mozilla.gpg

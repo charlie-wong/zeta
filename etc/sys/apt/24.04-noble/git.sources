@@ -1,4 +1,4 @@
-## /etc/apt/sources.list.d/git-core.sources
+## /etc/apt/sources.list.d/git.sources
 ##
 ## https://git-scm.com/download/linux
 ## https://launchpad.net/~git-core/+archive/ubuntu/ppa
@@ -7,8 +7,8 @@
 ## sudo apt install git
 
 Types: deb
+Architectures: amd64
 URIs: https://ppa.launchpadcontent.net/git-core/ppa/ubuntu
 Suites: noble
 Components: main
-Signed-By: /etc/apt/keyrings/git-core.gpg
-Architectures: amd64
+Signed-By: /etc/apt/keyrings/git.gpg

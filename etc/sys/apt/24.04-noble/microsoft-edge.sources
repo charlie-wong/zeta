@@ -1,0 +1,11 @@
+## /etc/apt/sources.list.d/microsoft-edge.sources
+##
+## https://www.microsoft.com/en-us/edge/download
+## sudo apt install microsoft-edge-stable
+
+Types: deb
+Architectures: amd64
+URIs: https://packages.microsoft.com/repos/edge
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/microsoft.gpg

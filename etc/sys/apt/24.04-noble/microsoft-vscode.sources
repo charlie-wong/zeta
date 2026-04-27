@@ -1,16 +1,15 @@
-## /etc/apt/sources.list.d/vscodium.sources
+## /etc/apt/sources.list.d/microsoft-vscode.sources
 ##
 ## https://vscodium.com
 ## https://code.visualstudio.com
 ## https://github.com/Microsoft/vscode
 ## https://github.com/VSCodium/vscodium
 ##
-## sudo apt install codium
+## sudo apt install code
 
-Enabled: no
 Types: deb
 Architectures: amd64
-URIs: https://download.vscodium.com/debs
-Suites: vscodium
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
 Components: main
-Signed-By: /etc/apt/keyrings/vscodium.gpg
+Signed-By: /etc/apt/keyrings/microsoft.gpg
