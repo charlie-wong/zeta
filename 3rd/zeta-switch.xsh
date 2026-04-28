@@ -3,16 +3,21 @@
 # Repository: https://github.com/charlie-wong/zeta
 
 # Cherry pick apps & tools, ignore if path not exist
-path-head-add "${ZETA_DIR}/3rd/tools" # Rust/Ruby Apps
-path-head-add "${ZETA_DIR}/3rd/pick"  # Symbolic Links
-path-head-add "${ZETA_DIR}/3rd/bin"   # Standalone Apps
+# 符号链接: Cargo 包, NodeJS 包, Go 包, RubyGems 包
+path-head-add "${ZETA_DIR}/3rd/tools"
+# 符号链接: cmake, java, node, rust, go, nim
+path-head-add "${ZETA_DIR}/3rd/pick"
+# 单个执行文件及手册页较少的应用软件
+path-head-add "${ZETA_DIR}/3rd/bin"
 
 # RubyGems 第三方依赖软件包的安装位置 GEM_HOME
 # https://jekyllrb.com/docs/installation/ubuntu
 # 中科 https://mirrors.ustc.edu.cn/help/rubygems.html
 # 清华 https://mirrors.tuna.tsinghua.edu.cn/help/rubygems
-if [[ -d "${ZETA_DIR}/3rd/vendor/gems" ]]; then
-  export GEM_HOME="${ZETA_DIR}/3rd/vendor/gems"
+if @zeta:xsh:has-cmd ruby; then
+  if [[ -d "${ZETA_DIR}/3rd/vendor/ruby/gems" ]]; then
+    export GEM_HOME="${ZETA_DIR}/3rd/vendor/ruby/gems"
+  fi
 fi
 
 # 终端显示 NodeJS 安装位置 $ npm config get prefix
@@ -62,63 +67,22 @@ if @zeta:xsh:has-cmd java; then
 fi
 
 function zman() {
-  local cmakeMAN  nodeMAN  rustMAN  javaMAN  xMAN
+  local cmakeMAN  nodeMAN  rustMAN  javaMAN
 
   cmakeMAN="$(@zeta:3rd:get-vendor-path cmake)"
   [[ -n "${cmakeMAN}" ]] && cmakeMAN="$(realpath -eq "${cmakeMAN}/../man")"
 
-  nodeMAN="$(@zeta:3rd:get-vendor-path node)"
-  [[ -n "${nodeMAN}" ]] && nodeMAN="$(realpath -eq "${nodeMAN}/../share/man")"
-
   javaMAN="$(@zeta:3rd:get-vendor-path java)"
   [[ -n "${javaMAN}" ]] && javaMAN="$(realpath -eq "${javaMAN}/../man")"
+
+  nodeMAN="$(@zeta:3rd:get-vendor-path node)"
+  [[ -n "${nodeMAN}" ]] && nodeMAN="$(realpath -eq "${nodeMAN}/../share/man")"
 
   rustMAN="$(@zeta:3rd:get-vendor-path rustc)"
   [[ -n "${rustMAN}" ]] && rustMAN="$(realpath -eq "${rustMAN}/../share/man")"
 
-  if [[ $# -eq 3 ]]; then
-    case "$1" in
-      c|C|cmake) xMAN="${cmakeMAN}" ;;
-      j|J|java)  xMAN="${javaMAN}"  ;;
-      r|R|rust)  xMAN="${rustMAN}"  ;;
-      *) return ;;
-    esac
-    if [[ -f "${xMAN}/man$2/$3.$2" ]]; then
-      man -l "${xMAN}/man$2/$3.$2"
-    fi
-    return
-  fi
-
-  case "$1" in
-    cmake) man -l "${cmakeMAN}/man1/cmake.1" ;; # CMake
-    cpack) man -l "${cmakeMAN}/man1/cpack.1" ;;
-    ctest) man -l "${cmakeMAN}/man1/ctest.1" ;;
-    javac) man -l "${javaMAN}/man1/javac.1"  ;; # Java
-     java) man -l "${javaMAN}/man1/java.1"   ;;
-      jar) man -l "${javaMAN}/man1/jar.1"    ;;
-    rustc) man -l "${rustMAN}/man1/rustc.1"  ;; # Rust
-    cargo) man -l "${rustMAN}/man1/cargo.1"  ;;
-     node) man -l "${nodeMAN}/man1/node.1"   ;; # NodeJS
-    *)
-      echo; @zeta:xsh:notes zman '<C|R|J>' '<1-8>' '<Name>'; echo
-      [[ -n "${cmakeMAN}" ]] && {
-        echo "=> $(@R3 cmake)"
-        command ls "${cmakeMAN}/man1/"
-        command ls "${cmakeMAN}/man7/"
-        echo
-      }
-      [[ -n "${rustMAN}" ]] && {
-        echo "=> $(@R3 rust)"
-        command ls "${rustMAN}/man1/"
-        echo
-      }
-      [[ -n "${javaMAN}" ]] && {
-        echo "=> $(@R3 java)"
-        command ls "${javaMAN}/man1/"
-        echo
-      }
-    ;;
-  esac
+  # https://www.man7.org/linux/man-pages/man5/manpath.5.html
+  MANPATH="${cmakeMAN}:${javaMAN}:${nodeMAN}:${rustMAN}:" man $@
 }
 
 function @zeta:3rd:is-vendor-pkg() {
@@ -146,7 +110,7 @@ function @zeta:3rd:create-links() {
   [[ -h "${app}" ]] && app="$(realpath -eq "${app}")"
   if [[ -n "${app}" && -f "${app}" ]]; then
     ln -sTf "${app}" "${sym}" # -s 符号链接 -f 若已存在则删除后重建
-    printf "Create $(@D9 '3rd/pick/')$(@G3 "%-12s") " "$1"
+    printf "Create $(@D9 '3rd/pick/')$(@G3 "%-18s") " "$1"
     echo "$(@D9 '->') $(@Y3 "${app}")"
   fi
 }
@@ -155,7 +119,6 @@ function @zeta:3rd:delete-links() {
   local binEXE=$1  pkgBIN
   case $1 in
     rust) binEXE=rustc ;; # pick/rustc
-    node) binEXE=node  ;; # pick/node
   esac
 
   # 读 binEXE 软链接, 找到 pkgBIN 目标路径
@@ -165,7 +128,7 @@ function @zeta:3rd:delete-links() {
   local pickDIR="${ZETA_DIR}/3rd/pick"
   for binEXE in $(ls "${pkgBIN}"); do
     [[ -h "${pickDIR}/${binEXE}" ]] && {
-      printf "Delete $(@D9 '3rd/pick/')$(@Y3 %-12s) $(@D9 '->') " ${binEXE}
+      printf "Delete $(@D9 '3rd/pick/')$(@Y3 %-18s) $(@D9 '->') " ${binEXE}
       echo "$(@G3 "$(realpath -eq "${pickDIR}/${binEXE}")")"
       rm -f "${pickDIR}/${binEXE}"
     }
@@ -180,11 +143,20 @@ function @zeta:3rd:zeta-switch() {
   for version in $(@zeta:3rd:get-pkg-version ${app}); do
     [[ "${selected}" == "${version}" ]] && {
       local pkgBIN="${app}/${version}/bin" binEXE
-      for binEXE in $(ls "${ZETA_DIR}/3rd/vendor/${pkgBIN}"); do
-        @zeta:3rd:create-links ${binEXE} "${pkgBIN}/${binEXE}"
-      done; return
+      if [[ "${app}" == "node" ]]; then
+        @zeta:3rd:create-links npm "${pkgBIN}/npm"
+        @zeta:3rd:create-links npx "${pkgBIN}/npx"
+        @zeta:3rd:create-links node "${pkgBIN}/node"
+        @zeta:3rd:create-links corepack "${pkgBIN}/corepack"
+        return
+      else
+        for binEXE in $(ls "${ZETA_DIR}/3rd/vendor/${pkgBIN}"); do
+          @zeta:3rd:create-links ${binEXE} "${pkgBIN}/${binEXE}"
+        done; return
+      fi
     }
   done
+  echo "invalid version <$(@R3 $2)> for $(@D9 3rd/vendor/)$(@Y3 $1) package"
 }
 
 function @zeta:3rd:update-tools() {
@@ -205,8 +177,9 @@ function @zeta:3rd:update-tools() {
   local node="${NODE_PATH#${ZETA_DIR}/3rd/vendor/}"
   node="${node%/lib/node_modules}" # 当前 NODE 版本
 
-  for xpkg in rust/cargo  ${node}  gems; do
+  for xpkg in rust/cargo  ${node}  go/modules  ruby/gems; do
     local xbin="${ZETA_DIR}/3rd/vendor/${xpkg}/bin"
+    [[ ! -d "${xbin}" ]] && continue
     [[ -z "$(command ls "${xbin}")" ]] && continue
     for prog in $(command ls "${xbin}"); do
       [[ "${xpkg}" == "${node}" ]] && {
@@ -216,14 +189,14 @@ function @zeta:3rd:update-tools() {
       }
       local abspath="$(realpath -eq "${xbin}/${prog}")"
       [[ $? -ne 0 || -z "${abspath}" || ${xskip["${abspath}"]} ]] && continue
-      ln -sTf  "${abspath}"  "${tools}/${prog}"; xskip["${abspath}"]=true
+      ln -sTf  "${abspath}"  "${tools}/${prog}"
       echo "Update $(@D9 3rd/tools/)$(@G3 ${prog}) $(@D9 '->') $(@Y3 "${abspath}")"
     done
   done
 }
 
 function @zeta:3rd:usage-help() {
-  local _PKGS_=( cmake  java  node  rust  go  nim ) app version
+  local _PKGS_=( cmake  go  java  nim  node  rust ) app version
   echo
   echo "-> $(@D9 zeta-switch) $(@R3 reset)   $(@G3 PKG)"
   echo "-> $(@D9 zeta-switch) $(@R3 update-tools)"
@@ -242,7 +215,7 @@ function zeta-switch() {
 
   if [[ "$1" == reset ]]; then
     case "$2" in
-      cmake|java|node|rust|go|nim) @zeta:3rd:delete-links $2; return ;;
+      cmake|go|java|nim|node|rust) @zeta:3rd:delete-links $2; return ;;
       *) echo "invalid $(@D9 3rd/vendor/)$(@R3 $2) package"; return 1 ;;
     esac
   elif [[ "$1" == update-tools ]]; then
@@ -251,11 +224,11 @@ function zeta-switch() {
 
   case "$1" in
     cmake) @zeta:3rd:zeta-switch cmake "$2" ;; # cmake/$2/bin/*
+       go) @zeta:3rd:zeta-switch go    "$2" ;; #    go/$2/bin/*
      java) @zeta:3rd:zeta-switch java  "$2" ;; #  java/$2/bin/*
+      nim) @zeta:3rd:zeta-switch nim   "$2" ;; #   nim/$2/bin/*
      node) @zeta:3rd:zeta-switch node  "$2" ;; #  node/$2/bin/*
      rust) @zeta:3rd:zeta-switch rust  "$2" ;; #  rust/$2/bin/*
-       go) @zeta:3rd:zeta-switch go    "$2" ;; #    go/$2/bin/*
-      nim) @zeta:3rd:zeta-switch nim   "$2" ;; #   nim/$2/bin/*
     *) echo "invalid $(@D9 3rd/vendor/)$(@R3 $1) package"; return 1 ;;
   esac
 
