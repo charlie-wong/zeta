@@ -93,12 +93,12 @@ function zman() {
     cmake) man -l "${cmakeMAN}/man1/cmake.1" ;; # CMake
     cpack) man -l "${cmakeMAN}/man1/cpack.1" ;;
     ctest) man -l "${cmakeMAN}/man1/ctest.1" ;;
-    javac) man -l  "${javaMAN}/man1/javac.1" ;; # Java
-     java) man -l  "${javaMAN}/man1/java.1"  ;;
-      jar) man -l  "${javaMAN}/man1/jar.1"   ;;
-    rustc) man -l  "${rustMAN}/man1/rustc.1" ;; # Rust
-    cargo) man -l  "${rustMAN}/man1/cargo.1" ;;
-     node) man -l  "${nodeMAN}/man1/node.1"  ;; # NodeJS
+    javac) man -l "${javaMAN}/man1/javac.1"  ;; # Java
+     java) man -l "${javaMAN}/man1/java.1"   ;;
+      jar) man -l "${javaMAN}/man1/jar.1"    ;;
+    rustc) man -l "${rustMAN}/man1/rustc.1"  ;; # Rust
+    cargo) man -l "${rustMAN}/man1/cargo.1"  ;;
+     node) man -l "${nodeMAN}/man1/node.1"   ;; # NodeJS
     *)
       echo; @zeta:xsh:notes zman '<C|R|J>' '<1-8>' '<Name>'; echo
       [[ -n "${cmakeMAN}" ]] && {
