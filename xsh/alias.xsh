@@ -30,7 +30,7 @@ alias diff='diff --color=auto --report-identical-files'
 alias od='od  -Ax  -w16  -tx1z  -tu1  -to1'
 
 _zvar_=".git,.github,.vscode,.bundle,.cache,node_modules"
-_zvar_="${_zvar_},out,dist,build,cache,3rd,3rdparty,todo,wip"
+_zvar_="${_zvar_},out,dist,build,cache,3rd,vendor,todo,wip"
 
 _zcmd_="$(command -v grep)"  # grep 默认等同于 grep -G
 alias  grep="${_zcmd_} --color=auto --exclude-dir={${_zvar_}}"
