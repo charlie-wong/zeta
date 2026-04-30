@@ -1,10 +1,10 @@
-*.log
+wip/
 
-*.zwc
+*.log
 
 *.ttf
 *.deb
 *.zip
 *.tar.*
 
-wip/*
+*.zwc

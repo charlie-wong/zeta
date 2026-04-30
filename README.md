@@ -1,33 +1,48 @@
-# Zeta
+<div align="center">
+  <a href="/">
+    <img height="150" src="/docs/assets/bio.svg" alt="logo">
+  </a>
+  <h1>Zeta</h1>
+</div>
 
-个人终端配置文件，工具及脚本。
+<div align="center">
 
-- `xcmd ...` 执行 **xsh/bin** 目录下脚本文件
-- `zman ...` 查找 cmake, node, java, rust 手册
-- `ls-path` 列表方式显示 PATH 内容
-- `zeta-switch` 手动安装软件版本切换
+<!-- https://shields.io/badges/git-hub-commit-activity -->
+![stable](https://img.shields.io/github/v/release/charlie-wong/template?label=stable)
+![prepare](https://img.shields.io/github/commits-since/charlie-wong/template/latest?label=prepare)
+![activity](https://img.shields.io/github/commit-activity/m/charlie-wong/template?label=activity)
+![commit](https://img.shields.io/github/last-commit/charlie-wong/template?label=commit&color=hotpink)
+![language](https://img.shields.io/github/languages/top/charlie-wong/template)
+![birth](https://img.shields.io/github/created-at/charlie-wong/template?label=birth)
 
-- `path-head-add path/to/add` 向 PATH 添加新路径
+##### 🎇 字符终端、开发工具、操作系统配置及常用脚本。 🎇
 
-# 环境变量
+</div>
 
-- `ZETA_DIR`    zeta 所在位置
+## 目录结构
 
-- `GEM_HOME`    Ruby Gems 包安装位置
-- `NODE_PATH`   NodeJS 包安装位置
-- `GOROOT`      Go 安装位置
-- `GOPATH`      Go 模块安装位置
-- `GOPROXY`     Go 模块下载地址
-- `CARGO_HOME`  Cargo 包安装位置
-- `JAVA_HOME`   Java 安装位置
+```text
+zeta/
+├── bin       小工具及手册页
+├── docs      备忘以及技术文档
+├── share     桌面及系统配置文件
+├── vendor    系统间共享的工具软件
+└── zsh
+```
 
-# 参考链接
+## License
 
-- man 搜索路径 <https://modules.readthedocs.io/en/stable/cookbook/man-path.html>
-- man 默认搜索查找路径 <https://www.man7.org/linux/man-pages/man5/manpath.5.html>
+All assets are released under the
+<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>
+and otherwise under their terms and license respectively.
 
-- <https://dotfiles.github.io>
-- <https://wiki.archlinux.org/title/Dotfiles>
-- <https://github.com/webpro/awesome-dotfiles>
-- <https://github.com/ibraheemdev/modern-unix>
-- <https://github.com/durgeshsamariya/awesome-github-profile-readme-templates>
+<div align="center">
+  <a href="/"><img width="200" src="/docs/assets/octocat.gif" alt="octocat"></a>
+</div>
+
+<div align="center">
+<strong>⭐Hit the star button if you found this is useful.⭐</strong><br>
+<strong>❤I hope it will work well, and any
+<a href="https://github.com/charlie-wong/zeta/issues">bug report</a>
+is welcome.❤</strong>
+</div>
