@@ -1,0 +1,55 @@
+## http://astyle.sourceforge.net
+## To convert source coding style recursively by run
+## $ astyle --options=path/to/c --recursive '*.c' '*.h'
+
+## // *INDENT-OFF*
+## 代码块保持原状
+## // *INDENT-ON*
+##
+## 单行保持原状 // *NOPAD*
+
+#--verbose
+--formatted
+--suffix=none
+--lineend=linux
+--preserve-date
+--ignore-exclude-errors
+--exclude="build cmake docs todo wip"
+
+--mode=c
+--style=google
+--max-code-length=100
+
+--convert-tabs
+--indent=spaces=2
+--indent-switches
+--indent-preproc-block
+--indent-preproc-define
+--indent-preproc-cond
+--indent-after-parens
+--indent-continuation=1
+--indent-labels
+
+--min-conditional-indent=1
+--max-continuation-indent=40
+
+--add-braces
+--break-blocks
+--break-one-line-headers
+
+--squeeze-ws
+--squeeze-lines=1
+--delete-empty-lines
+
+--attach-return-type
+--attach-closing-while
+--attach-return-type-decl
+
+--align-pointer=name
+--align-reference=name
+
+--pad-oper
+--pad-comma
+--pad-header
+--pad-paren-in
+--pad-brackets-in

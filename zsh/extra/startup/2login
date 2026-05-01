@@ -1,0 +1,4 @@
+# ~/.bash_login or ~/.zlogin: executed when login the shell.
+
+[ -d "${HOME}/bin" ]        && PATH="${HOME}/bin:${PATH}"
+[ -d "${HOME}/.local/bin" ] && PATH="${HOME}/.local/bin:${PATH}"

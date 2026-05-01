@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+# 调用 etc/shell/bin 目录下脚本, 如 `xcmd date-time`
+function xcmd() {
+  [[ $# -eq 0 ]] && return
+
+  local zbf="${ZETA_DIR}/zsh/bin/$1"; shift
+  local zcolor="${ZETA_DIR}/zsh/lib/color.zsh"
+
+  if [[ ! -f "${zbf}" ]]; then
+    @zeta:emsg "do not exist $(@D9 ${zbf}) script file."
+    return 255
+  fi
+
+  env ZCOLOR="${zcolor}"  "${zbf}"  "$@"
+}
+
+function @zeta:comp-xcmd() {
+  local context state state_descr line opt_args zargs
+  function xcmd±once() {
+    local zcmds=( $(command ls --hide='*.log' "${ZETA_DIR}/zsh/bin" | sort) )
+    _describe 'command' zcmds; unset -f xcmd±once
+  }
+  # 命令名 ${line[1]}  命令参数 ${line[2]} ...
+  _arguments '1:脚本名称:xcmd±once' ':后续参数:->todo'
+  if [[ "todo" == "${state[1]}" ]]; then
+    case "${line[1]}" in
+      touch)
+        # 补全 xcmd touch 参数的子目录部分
+        # _path_files 内置函数, -/ 仅补全目录名
+        _arguments '2:补全子目录:_path_files -/' ;;
+      *) return ;;
+    esac
+  fi
+}
+
+compdef @zeta:comp-xcmd xcmd

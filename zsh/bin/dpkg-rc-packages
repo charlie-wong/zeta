@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+no-cmd dpkg && exit 101
+
+if [[ $1 == "delete" ]]; then
+  dpkg -l | grep "^rc" | awk "{print \$2}" | sudo xargs dpkg --purge
+else
+  echo " => Use $(@D9 ${0##*/}) $(@R3 delete) to delete trash configurations."
+  dpkg -l | grep "^rc"
+fi
