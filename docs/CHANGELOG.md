@@ -1,0 +1,26 @@
+<div align="center"><h1><a>CHANGELOG</a></h1></div>
+
+- ALL NOTABLE CHANGES WILL BE DOCUMENTED HERE.
+<!-- Fixed, Feature, Chore, Deprecated, Security -->
+
+## WIP
+
+- what is going on ...
+
+## v1.1.3 - 2025-08-17
+
+### Fixed
+
+- ...
+
+### Feature
+
+- Added ...
+- Removed ...
+
+### Chore
+
+- Docs typo ...
+- Coding style ...
+- Update dependency ...
+- Building & testing ...
