@@ -60,6 +60,10 @@ if @zeta:has-cmd java; then
   export STUDIO_JDK="${JAVA_HOME}"
 fi
 
+[[ -n "${GOPATH:-}" && -d "${GOPATH}/bin" ]] && path-head-add "${GOPATH}/bin"
+[[ -n "${GEM_HOME:-}" && -d "${GEM_HOME}/bin" ]] && path-head-add "${GEM_HOME}/bin"
+[[ -n "${CARGO_HOME:-}" && -d "${CARGO_HOME}/bin" ]] && path-head-add "${CARGO_HOME}/bin"
+
 function zman() {
   local vendorMAN  appMAN
 
