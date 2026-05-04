@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ "$(lsb_release -is)" != "Ubuntu" ]] && exit 1
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+THIS_FN="${0##*/}"
+# $$ 当前 shell 进程 PID
+TEMPFILE="/tmp/$$-${0##*/}"
+
+# 清空临时数据文件, 退出
+function cleanup-exit() {
+  #echo "删除临时文件: $(@R3 ${TEMPFILE})"
+  [[ $# -eq 0 ]] && { echo; echo; }
+  rm -f ${TEMPFILE}; exit 0
+}
+
+trap cleanup-exit SIGINT # 信号捕获 Ctrl + C
+
+# 功能: 使用说明
+function help-usage() {
+  echo
+  echo "=> 交互式解析, $(@C3 跳过) $(@R3 Nvidia) 和 $(@R3 Kernel)"
+  echo "   $(@G9 ${THIS_FN}) [$(@Y9 AutoYes)|$(@Y9 OnTheWay)]"
+  echo
+  echo "=> 生成临时数据文件"
+  echo "   apt list --upgradable | cut -s -d' ' -f1- > ~/c临时数据"
+  echo
+  echo "=> 显示软件包更新日志"
+  echo "   $(@D9 apt) $(@R3 changelog) PKG[=VER]"
+  echo "=> 系统更新 $(@D9 sudo apt) $(@C9 update); $(@D9 sudo apt) $(@C9 upgrade)"
+  echo "=> 查看软件包的基本信息"
+  echo "   $(@D9 apt show) PKG            $(@D9 sudo apt) update      更新源列表"
+  echo "   $(@G9 aptitude show) PKG       $(@D9 sudo apt) $(@G9 autoremove)  卸载孤立无用软件包"
+  echo "   $(@G9 apt-show-versions) PKG   $(@D9 sudo apt) $(@G9 autoclean)   仅删除不再支持的及无用的包缓存"
+  echo "=> 依赖包列表                                  依赖它的包列表"
+  echo "   $(@G9 apt-cache) $(@R3 depends) $(@D9 linux-generic-hwe-22.04)   $(@G9 apt-cache) $(@R3 rdepends) $(@D9 linux-image-generic-hwe-22.04)"
+  echo "   |─ 依赖 linux-image-generic-hwe-22.04       |─ 反依赖 linux-generic-hwe-22.04"
+  echo "   ╰─ 依赖 linux-headers-generic-hwe-22.04     |─ 反依赖 linux-image-generic-hwe-20.04"
+  echo "                                               ╰─ 反依赖 linux-image-extra-virtual-hwe-22.04"
+  echo "=> $(@G9 ubuntu-drivers) $(@Y9 devices) 可选驱动列表"
+  echo "=> $(@G9 nvidia-settings) 显卡 GUI 设置程序"
+  echo "   $(@Y9 nvidia-smi)      显卡状态查询"
+  echo "=> 升级 $(@R3 NVIDIA 显卡驱动)(闭源较开源稳定)"
+  echo "   sudo apt install $(@Y9 nvidia-driver-530)"
+  echo "=> $(@R3 内核升级更新)"
+  echo "   $(@C3 sudo apt install) $(@G9 linux-generic-hwe-22.04) $(@G9 linux-libc-dev)"
+  echo
+  echo "=> 显示当前内核相关软件包"
+  # $2          表示每行的第 2 字段
+  # exp ~ /reg/ 表示 awk 模式, 即当 exp 匹配 reg 正则表达式时整个表达式的值为真
+  #             若模式表达式的值为真则执行 { print $2 }, 即显示当前行第2列内容
+  # 整体含义: 仅显示第 2 列包含 `uname -r` 字符串的软件包
+  echo "   $(@G9 'dpkg -l') $(@Y9 'linux-image-*')"
+  echo "   $(@G9 'dpkg -l') | $(@G9 awk) \"\$2 ~ /\$(uname -r)/ { print \$2 }\""
+  # -n1 仅使用一个参数, -t 若错误，则显示执行的命令后再退出
+  echo "   $(@G9 'dpkg -l') | $(@G9 awk) \"\$2 ~ /\$(uname -r)/ { print \$2 }\" | $(@G9 xargs) -n1 -t $(@G9 apt) $(@R3 changelog)"
+  echo
+  local kVerUpstream  kVerUbuntu  kVerAbiUpload  ubuntuVer  flavor
+  kVerUpstream="$(cat /proc/version_signature | cut -d' ' -f3)"
+  kVerUbuntu=$(cat /proc/version_signature | cut -d' ' -f2)
+  ubuntuVer="$(echo ${kVerUbuntu} | cut -d'~' -f2 | cut -d'-' -f1)"
+  flavor="$(echo ${kVerUbuntu} | cut -d'~' -f2 | cut -d'-' -f2)"
+
+  local kVer  kApi  upload
+  kVerAbiUpload=$(echo ${kVerUbuntu} | cut -d'~' -f1)
+  kVer="$(echo ${kVerAbiUpload} | cut -d'-' -f1)"
+  kApi="$(echo ${kVerAbiUpload} | cut -d'-' -f2 | cut -d'.' -f1)"
+  upload="$(echo ${kVerAbiUpload} | cut -d'-' -f2 | cut -d'.' -f2)"
+
+  local vp1  vp2
+  vp1="$(@R3 ${kVer})$(@D9 '-')$(@G9 ${kApi})"
+  vp2="$(@B3 ${upload})$(@D9 '~')$(@C3 ${ubuntuVer})"
+  echo "=> 当前运行内核版本 ${vp1}$(@D9 '.')${vp2}$(@D9 '-')$(@Y9 $flavor)     <- 主线版本 $(@G9 $kVerUpstream)"
+  echo "   $(@G9 column) $(@R3 '-t -s,') $(@D9 /usr/share/distro-info/)$(@C3 debian.csv)  <- $(@C3 Debian) Release Information"
+  echo "   $(@G9 column) $(@R3 '-t -s,') $(@D9 /usr/share/distro-info/)$(@B3 ubuntu.csv)  <- $(@B3 Ubuntu) Release Information"
+  echo
+}
+
+case "$1" in
+  OnTheWay) ;;
+  AutoYes) AutoYes='-y' ;;
+  *) help-usage; exit ;;
+esac
+
+# Ubuntu 系列内核镜像命名规则
+#
+# VERSION     上游主线稳定版内核版本
+# ABI.UPLOAD  内核二进制接口的变化(ABI), 更新上传序号(UPLOAD)
+# FLAVOR      和内核编译时的配置有关, 最常用 generic, 适用于桌面/服务器
+#
+# https://wiki.ubuntu.com/Kernel/FAQ
+# https://ubuntu.com/kernel/lifecycle
+# https://debian-handbook.info/browse/stable/sect.kernel-compilation.html
+
+# linux-image-VERSION-ABI.UPLOAD-FLAVOR
+# |- 编译内核时的配置文件
+# |- 编译产生的 Symbol Table
+# |- 动态加载的二进制内核模块
+# ╰─ Bootloader 加载的二进制镜像文件
+
+# linux-headers-VERSION-ABI.UPLOAD-FLAVOR
+# ╰─ 内核相关的头文件(包含编译时生成部分)
+#    编译第三方内核模块时需要使用这些头文件
+
+# linux-libc-dev
+# ╰─ 系统基础 C 库依赖其提供的内核头文件, 编译用户空间程序
+
+# linux-doc-VERSION
+# ╰─ 包含与之对应的内核文档
+
+# linux-source-VERSION
+# ╰─ 包含内核源码
+
+# linux-tools-VERSION
+# ╰─ 编译内核相关工具, 当前通常仅包含 perf(内核性能统计分析)
+
+# $ cat /proc/version_signature  <- 当前运行内核版本
+#   Ubuntu 6.2.0-34.34~22.04.1-generic 6.2.16
+#   6.2.0-34.34~22.04.1-generic    Ubuntu 内核版本
+#   6.2.16                         上游内核版本
+# $ hwe-support-status --verbose <- 检查 HWE 内核支持状态
+#
+# $ mokutil --sb-state   检测安全启动是否启用
+#   SecureBoot enabled
+# /lib/modules/6.2.0-35-generic/updates/dkms/nvidia.ko
+# $ modinfo nvidia       显示 nvidia 内核模块信息
+
+# 显示更新包基本信息
+function package-info() {
+  package=$1
+  oldVer=$2
+  newVer=$3
+  type=$4
+  chip=$5
+  idxcnt=$6
+  pkgcnt=$7
+
+  # RED GREEN YELLOW BLUE PURPLE CYAN RESET
+  # 是否是安全相关更新, xxx-security
+  echo ${type} | grep security > /dev/null; isSecurity=$?
+  if [ ${isSecurity} -eq 0 ]; then
+    type="$(@R3 ${type})"
+  else
+    type="$(@P3 ${type})"
+  fi
+
+  echo "[${idxcnt}/${pkgcnt}] $(@G9 ${package})"
+  echo "旧版本: $(@C3 ${oldVer})"
+  echo "新版本: $(@Y9 ${newVer})"
+  echo "芯片 $(@P3 ${chip}) 类型 ${type}"
+}
+
+# 创建临时数据文件
+#echo "创建临时文件: ${TEMPFILE}" # 正常结束或 Ctrl + C 则自动删除
+{ apt list --upgradable | cut -s -d' ' -f1- > ${TEMPFILE}; } 2> /dev/null
+if [ ! -f "${TEMPFILE}" ]; then
+  echo "ERROR: can NOT create temp file ${TEMPFILE}"
+  exit 1
+fi
+
+idxCnt=0
+# 文件行数目, 即更新软件包个数
+pkgCnt=$(sed -n '$=' ${TEMPFILE})
+
+while read line; do
+  (( idxCnt++ ))
+
+  package=$(echo ${line} | cut -d' ' -f1 | cut -d'/' -f1)
+     type=$(echo ${line} | cut -d' ' -f1 | cut -d'/' -f2)
+     chip=$(echo ${line} | cut -d' ' -f3)
+   newVer=$(echo ${line} | cut -d' ' -f2)
+   oldVer=$(echo ${line} | cut -d' ' -f6 | tr -d ])
+
+  echo ${package} | grep -iq nvidia; isNvidia=$?
+  echo ${package} | grep -iq  linux; isKernel=$?
+
+  # 显卡驱动/内核模块
+  if [[ ${isNvidia} -eq 0 && ${isKernel} -eq 0 ]]; then
+    echo "Skip ${line}"; continue
+  fi
+
+  #echo "当前行: ${line}"
+  package-info ${package} ${oldVer} ${newVer} ${type} ${chip} ${idxCnt} ${pkgCnt}
+
+  echo -n "$(@D9 'apt show') $(@Y9 ${package}) show package info, $(@G9 Y)es ? "
+  # 4.2 Bash Builtin Commands -> read
+  # https://www.gnu.org/software/bash/manual/bash.html
+  read -ru 2 KEY; # -u N 从文件描述符 N 读取数据
+  [[ "${KEY}" == "Y" || "${KEY}" == "y" ]] && {
+    timeout 5s apt show "${package}"; echo; # wait;
+  }
+
+  echo -n "$(@D9 'apt changelog') $(@Y9 ${package}) show changelog, $(@G9 Y)es ? "
+  # 4.2 Bash Builtin Commands -> read
+  # https://www.gnu.org/software/bash/manual/bash.html
+  read -ru 2 KEY; # -u N 从文件描述符 N 读取数据
+  [[ "${KEY}" == "Y" || "${KEY}" == "y" ]] && {
+    timeout 5s apt changelog "${package}"; echo; # wait;
+  }
+
+  echo -n "Press $(@R3 Q)$(@D9 uit), $(@R3 S)$(@D9 kip), any others $(@R3 I)$(@D9 nstall) ? "
+  read -ru 2 KEY; echo; # -u N 从文件描述符 N 读取数据
+  case "${KEY}" in
+    S|s) continue ;;
+    Q|q) cleanup-exit "quit"; ;;
+    *) ;;
+  esac
+
+  sudo apt install ${package} ${AutoYes} #< /dev/tty
+  clear
+done < ${TEMPFILE} # 影响 loop 内全部 read 命令
+
+cleanup-exit 'done'

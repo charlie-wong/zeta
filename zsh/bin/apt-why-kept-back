@@ -21,7 +21,7 @@ source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-no-cmd apt && exit 101
+no-cmd apt && exit
 
 NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
 CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNO}-old.log"
@@ -105,7 +105,7 @@ for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
   [[ -n "${enter_to_continue}" ]] && exit 0
 done
 
-exit 0
+exit
 
 while read PKG; do
   printf "%30s -> ${PKG}\n" "$(apt show "${PKG}" 2>&1 | grep Phased)"

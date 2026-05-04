@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+what=$1
+package=$2
+after=$3
+before=$4
+
+dpkglog='/var/log/dpkg.log'
+GREP='command grep --color=auto'
+
+case "${what}" in
+  install)  ${GREP} -n "install" ${dpkglog} | ${GREP} -A1000 "${after}" | ${GREP} -B1000 "${before}" | ${GREP} "${package}" ;;
+  upgrade)  ${GREP} -n "upgrade" ${dpkglog} | ${GREP} -A1000 "${after}" | ${GREP} -B1000 "${before}" | ${GREP} "${package}" ;;
+  remove)   ${GREP} -n "remove"  ${dpkglog} | ${GREP} -A1000 "${after}" | ${GREP} -B1000 "${before}" | ${GREP} "${package}" ;;
+  rollback) ${GREP} -n "upgrade" ${dpkglog} | ${GREP} -A1000 "${after}" | ${GREP} -B1000 "${before}" | ${GREP} "${package}" ;;
+  *) echo "${0##*/} <install|upgrade|remove|rollback> [PackageName] [YYYY-MM-DD] [YYYY-MM-DD]" ;;
+esac

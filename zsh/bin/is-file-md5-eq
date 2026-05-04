@@ -29,11 +29,11 @@ hashB=$(md5sum "$2" | cut -d' ' -f1)
 }
 
 if [[ "${hashA}" != "${hashB}" ]]; then
-  echo >&2 "The $(@D9 MD5)-hash $(@R3 not) equal for $(@G9 $1) and $(@Y9 $2)"
+  echo >&2 "MD5 $(@R3 NOT) equal for $(@G9 $1) and $(@Y9 $2)"
   exit 105
 fi
 
-echo >&2 "The $(@D9 MD5)-hash $(@G3 equal) for $(@G9 $1) and $(@Y9 $2)"
+echo >&2 "MD5 $(@G3 equal) for $(@G9 $1) and $(@Y9 $2)"
 
 # NOTE 产生的哈希值位数越长, 其运行效率越慢, 其安全性越高, 其越不容易产生哈希碰撞
 # 散列算法 MD5, SHA1, SHA256(SHA-224,SHA-256,SHA-384,SHA-512,SHA-512/224,SHA-512/256)

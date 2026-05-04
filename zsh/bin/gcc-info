@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+# 显示编译 C/C++ 时头文件的搜索路径
+function gcc-compiler-info() {
+  local spec cnt=0 data search_list=0 _lang_='c'
+  [[ $# -ne 0 ]] && _lang_='c++'
+
+  local IFS=$'\n' line
+  local pat1="^Target: (.*)$"
+  local pat2="^Configured with: (.*)$"
+  local pat3="^Thread model: (.*)$"
+  local pat4="LTO compression algorithms: (.*)$"
+  local pat5="^gcc version (.*) [(].*$"
+  local pat6="^ignoring (.*) directory \"(.*)\"$"
+  local pat7="^#include <...> search starts here:$"
+  local pat8="^End of search list"
+  local pat9="^COMPILER_PATH=(.*)$"
+  local pat10="^LIBRARY_PATH=(.*)$"
+  local pat11="^COLLECT_GCC_OPTIONS=(.*)$"
+  local match  mbegin  mend # Zsh 正则匹配变量
+
+  # => echo 'void main(void){}' | gcc -x c   -E -v -
+  # => echo 'void main(void){}' | gcc -x c++ -E -v -
+  # -x c  指明输入文件使用的是 C 语言
+  # -E    只对输入源文件进行预处理
+  # -v    显示gcc编译时执行的详细命令及相应程序版本号
+  # -     POSIX标准规定，处理标准输入信息
+
+  for line in $(echo 'void main(void){}' | gcc -x ${_lang_} -E -v - 2>&1); do
+    #echo "==[$line]"
+    if [[ "${line}" =~ ${pat7} ]]; then
+      search_list=1
+      @D9 'System Search List'; echo
+    elif [[ "${line}" =~ ${pat8} ]]; then
+      search_list=0
+    elif (( search_list )); then
+      echo -n '->'; @Y9 ${line}; echo
+    elif [[ "${line}" =~ ${pat1} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        echo "$(@D9 'Target') $(@Y9 ${match[1]})"
+      else
+        echo "$(@D9 'Target') $(@Y9 ${BASH_REMATCH[1]})"
+      fi
+    elif [[ "${line}" =~ ${pat2} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        data=( ${=match[1]// /$'\n'} )
+      else
+        data=( ${BASH_REMATCH[1]// /$'\n'} )
+      fi
+      @D9 'Configured With'; echo; cnt=0
+      for spec in ${data[@]}; do
+        if (( cnt % 2 )); then
+          @C3 " ${spec}"
+        else
+          @Y9 " ${spec}"
+        fi
+        (( cnt++ ))
+      done
+      echo
+    elif [[ "${line}" =~ ${pat3} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        echo "$(@D9 'Thread Model') $(@Y9 ${match[1]})"
+      else
+        echo "$(@D9 'Thread Model') $(@Y9 ${BASH_REMATCH[1]})"
+      fi
+    elif [[ "${line}" =~ ${pat4} ]]; then
+      # LTO => Link-Time Optimization
+      # https://gcc.gnu.org/onlinedocs/gccint/LTO-Overview.html
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        echo "$(@D9 'LTO Algorithms') $(@Y9 ${match[1]})"
+      else
+        echo "$(@D9 'LTO Algorithms') $(@Y9 ${BASH_REMATCH[1]})"
+      fi
+    elif [[ "${line}" =~ ${pat5} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        echo "$(@D9 'GCC Version') $(@Y9 ${match[1]})"
+      else
+        echo "$(@D9 'GCC Version') $(@Y9 ${BASH_REMATCH[1]})"
+      fi
+    elif [[ "${line}" =~ ${pat6} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        echo "$(@D9 'Ignoring') $(@R3 ${match[1]}) $(@Y9 ${match[2]})"
+      else
+        echo "$(@D9 'Ignoring') $(@R3 ${BASH_REMATCH[1]}) $(@Y9 ${BASH_REMATCH[2]})"
+      fi
+    elif [[ "${line}" =~ ${pat9} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        data=( ${=match[1]//:/$'\n'} )
+      else
+        data=( ${BASH_REMATCH[1]//:/$'\n'} )
+      fi
+      @D9 'COMPILER_PATH'; echo
+      for spec in ${data[@]}; do
+        echo -n '-> '; @C3 "${spec}"; echo
+      done
+    elif [[ "${line}" =~ ${pat10} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        data=( ${=match[1]//:/$'\n'} )
+      else
+        data=( ${BASH_REMATCH[1]//:/$'\n'} )
+      fi
+      @D9 'LIBRARY_PATH'; echo
+      for spec in ${data[@]}; do
+        echo -n '-> '; @C3 "${spec}"; echo
+      done
+    elif [[ "${line}" =~ ${pat11} ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        echo "$(@D9 'COLLECT_GCC_OPTIONS') $(@R3 ${match[1]//\'/})"
+      else
+        echo "$(@D9 'COLLECT_GCC_OPTIONS') $(@R3 ${BASH_REMATCH[1]//\'/})"
+      fi
+    fi
+  done
+}
+
+gcc-compiler-info $@

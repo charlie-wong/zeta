@@ -2,11 +2,33 @@
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
 # Repository: https://github.com/charlie-wong/zeta
 
-alias c='clear'   ;   alias j='jobs -l'
+alias c='clear'
+alias j='jobs -l'
 
-alias cp='cp -i'  ;   alias -- -='cd -'
-alias mv='mv -i'  ;   alias   ..='cd ../'
-alias rm='rm -i'  ;   alias  ...='cd ../../'
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -i'
+
+alias -- -='cd -'
+alias   ..='cd ../'
+alias  ...='cd ../../'
+
+# zsh 默认设置 run-help cd
+# - cd +N   N 表示 dirs 列表(左)起第 N 个, 从 0 开始计数
+# - cd -N   N 表示 dirs 列表(右)起第 N 个, 从 0 开始计数
+alias    1='cd -1'
+alias    2='cd -2'
+alias    3='cd -3'
+alias    4='cd -4'
+alias    5='cd -5'
+alias    6='cd -6'
+alias    7='cd -7'
+alias    8='cd -8'
+alias    9='cd -9'
+
+alias h='history'
+alias hs='history | grep'
+alias hsi='history | grep -i'
 
 # NOTE https://unix.stackexchange.com/questions/272965
 # diff between `pushd` `popd` `cd` `cd -` for bash & zsh
@@ -263,14 +285,14 @@ alias ls-alt-selections="update-alternatives --get-selections"
 alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
 alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
 
-# ISO-8601 后缀 Z 表示 UTC 时间, Z 表示 Zero, 即 UTC 时间
+# ISO-8601 后缀 Z(Zero) 表示 UTC 时间
 # UTC Time Now        https://www.utctime.net
 # ISO-8601 时标       https://www.timestamp-converter.com
 # ISO-8601 时区地图   https://iso8601converter.com
 # 时间格式转换工具    https://dencode.com/en/date/iso8601
 # Time Zone 简写列表  https://www.timeanddate.com/time/zones
 # 时间格式可视化对比  https://ijmacd.github.io/rfc3339-iso8601
-
+#
 # ISO-8601 格式时间(本地时 %z 标准时 %Z)
 # -> date +'%F %T %z'              date +'%FT%T%Z'
 # -> date +'%Y-%m-%d %H:%M:%S %z'  date +'%Y-%m-%dT%H:%M:%S%Z'

@@ -1,0 +1,100 @@
+#!/usr/bin/env zsh
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+# git log --show-signature
+
+function ls-commit-gpg() {
+  local _r_='%C(red)'        _g_='%C(green)'       _b_='%C(blue)'
+  local _y_='%C(yellow)'     _m_='%C(magenta)'     _c_='%C(cyan)'
+  local _R_='%C(dim red)'    _G_='%C(dim green)'   _B_='%C(dim blue)'
+  local _Y_='%C(dim yellow)' _M_='%C(dim magenta)' _C_='%C(dim cyan)'
+  local _x_='%C(reset)'      _w_='%C(white)'       _W_='%C(dim white)'
+  local _who_="A ${_c_}%as ${_W_}%<(24,trunc)%ae${_x_} C ${_c_}%cs ${_W_}%<(24,trunc)%ce${_x_} %s"
+
+  local _args_ _mark_ _pad_
+  if [[ $# -eq 0 ]]; then
+    _args_="-10"
+    _mark_="${_m_}%h${_x_} "
+  else
+    _pad_="  "
+    _args_="--boundary"
+    _mark_="${_r_}%m${_m_}%h${_x_} "
+  fi
+
+  local _line_ _x_='#' is_gpg_info=0
+  local _np_="-c core.pager='' " # turn off pager
+  local _g1_="%G?" _g2_="%GS" _g3_="%GK" _g4_="%GF" _g5_="%<(8)%GT" _g6_="%GP"
+  local _gpg_="${_g1_}${_x_}${_g5_}${_x_}${_g3_}${_x_}${_g6_}${_x_}${_g2_}"
+  # NOTE $@ 使用默认的 IFS 首个字符进行分隔, 即空格
+  local _git_log_cmd_="git ${_np_} log ${_args_} $@ --format=format:'${_mark_}${_who_}%n${_gpg_}'"
+
+  echo; local info IFS=$'\n' # NOTE IFS 换行符用于 for 循环文本分隔
+  for _line_ in $(script -efq -O /dev/null -c "${_git_log_cmd_}" ); do
+    # TODO 为啥行尾会有 \r 字符?
+    _line_="${_line_//$'\r'/}"
+
+    if (( is_gpg_info )); then
+      is_gpg_info=0 # 下一行[提交]信息
+      [[ -n "${_pad_}" ]] && echo -n " "
+
+      # 1=签名状态  2=信任等级  3=密钥 frp  4=prim frp  5=姓名邮箱
+      info=( ${=_line_//${_x_}/$'\n'} )
+
+      @D9 '-> '
+      if [[ "G" == "${info[1]}" ]]; then
+        @G9 "${info[1]} "; @B9 "${info[2]} "
+        if [[ -n "${info[4]}" ]]; then
+          @D9 'SubKey='; @Y9 "${info[3]} "; @D9 'PriKey='; @R3 "${info[4]:24} "
+        else
+          @Y9 "${info[3]} "
+        fi
+        @D9 "${info[5]}"
+      elif [[ "N" == "${info[1]}" ]]; then
+        @D9 "No signature"
+      elif [[ "E" == "${info[1]}" ]]; then
+        @D9 "No public key "; @Y9 "${info[3]}"
+      elif [[ "B" == "${info[1]}" ]]; then
+        @D9 "Signature bad invalid "; @R3 "${info[3]}"
+      elif [[ "X" == "${info[1]}" ]]; then
+        @D9 "Signature good but expired "; @R3 "${info[3]}"
+      elif [[ "U" == "${info[1]}" ]]; then
+        @D9 "Signature good with unknown validity "; @R3 "${info[3]}"
+      elif [[ "R" == "${info[1]}" ]]; then
+        @D9 "Signature good made by a revoked key "; @R3 "${info[3]}"
+      elif [[ "Y" == "${info[1]}" ]]; then
+        @D9 "Signature good made by an expired key "; @R3 "${info[3]}"
+      fi
+      echo
+    else
+      is_gpg_info=1 # 下一行 GPG 信息
+      echo "${_line_}"
+    fi
+  done
+
+  echo; [[ $# -eq 0 ]] && return
+
+  unset -v IFS; @D9 "${_git_log_cmd_}"; echo; echo
+
+  echo "=> $(@G9 '%G?') $(@D9 'Commit GPG Signature Status')"
+  echo "   $(@Y3 N) $(@D9 '->') not found signature     $(@Y3 E) $(@D9 '->') signature cannot be checked, missing key"
+  echo "   $(@Y3 B) $(@D9 '->') signature bad invalid   $(@Y3 U) $(@D9 '->') good signature with unknown validity"
+  echo "   $(@Y3 G) $(@D9 '->') signature good valid    $(@Y3 R) $(@D9 '->') good signature made by a revoked key"
+  echo "   $(@Y3 X) $(@D9 '->') signature good expired  $(@Y3 Y) $(@D9 '->') good signature made by an expired key"
+  echo "=> $(@G9 '%GS') $(@D9 'Signer name')          $(@G9 '%GK') $(@D9 'Signing key')"
+  echo "=> $(@G9 '%GF') $(@D9 'Key fingerprint')      $(@G9 '%GT') $(@D9 'Trust level')"
+  echo "=> $(@G9 '%GP') $(@D9 'Primary key fingreprint, subkey sign')"
+  echo
+  echo "=> $(@G9 '%H %T %P') $(@D9 长 Hash: Commit, Tree, Parent)  $(@G9 '%s') $(@D9 Subject title)"
+  echo "   $(@G9 '%h %t %p') $(@D9 短 Hash: Commit, Tree, Parent)  $(@G9 '%b') $(@D9 Commit msg body)"
+  echo "=> $(@G9 '%ar %as %ah %ai %aI %at %ad %aD') $(@D9 Date of Author)"
+  echo "   $(@G9 '%cr %cs %ch %ci %cI %ct %cd %cD') $(@D9 Date of Committer)"
+  echo "   $(@G9 '%an %ae %al') $(@D9 A 名字,邮箱,@以前) $(@G9 '%aN %aN %aL') $(@D9 .mailmap)"
+  echo "   $(@G9 '%cn %ce %cl') $(@D9 C 名字,邮箱,@以前) $(@G9 '%cN %cN %cL') $(@D9 .mailmap)"
+}
+
+ls-commit-gpg $@

@@ -3,7 +3,13 @@
 - 镜像仓库 <https://github.com/zsh-users/zsh>
 
 ```zsh
-# 关闭选项 set +o OptName 打开选项 set -o OptName
+# 打开选项 set -o OptName  关闭选项 set +o    OptName
+# 启用选项 setopt OptName  禁用选项 unsetopt  OptName
+
+# 自带集成主题 /usr/share/zsh/functions/Prompts
+prompt -l       # 列出可用主题列表
+prompt -p       # 预览主题样式
+prompt walters  # 使用 walters 主题
 
 declare -p VAR # 定义状态
 declare -g VAR # 全局变量 scalar

@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2016 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+function rgb-color-random() {
+  local _R_  _G_  _B_  data
+  # NOTE 若不刷新随机数生成器种子, 其值将保持不变(直到用户显示引用时为止)
+  RANDOM=$(date +%N) # 刷新生成器种子
+  (( _R_ = ${RANDOM} % 256 ))
+  (( _G_ = $(date +%N) % 256 ))
+  (( _B_ = $(awk 'BEGIN { srand(); print rand()*1000000; }') % 256 ))
+  printf -v _B_ "%d" ${_B_} # 取整数部分
+  printf -v data '%02x%02x%02x' ${_R_} ${_G_} ${_B_}
+  echo "$(@R3 ${data})"
+}
+
+# Calculate percieved brightness
+# https://www.w3.org/TR/AERT#color-contrast
+function rgb-color-brightness() {
+  [[ $# -eq 0 ]] && {
+    echo "=> $(@G3 rgb-color-brightness) $(@Y3 ff4500)"
+    return
+  }
+
+  # => RGB 十六进制颜色
+  local rgbcolor="$1" luminance
+
+  local _R_ _G_ _B_
+  if false; then
+    _R_=$(echo ${rgbcolor} | head -c2)
+    _G_=$(echo ${rgbcolor} | head -c4 | tail -c2)
+    _B_=$(echo ${rgbcolor} | tail -c3)
+  else
+    _R_=${rgbcolor:0:2}
+    _G_=${rgbcolor:2:2}
+    _B_=${rgbcolor:4:2}
+  fi
+
+  # 十六进制 => 十进制
+  (( _R_ = 16#${_R_} ))
+  (( _G_ = 16#${_G_} ))
+  (( _B_ = 16#${_B_} ))
+
+  # NOTE This is a suggested algorithm that is still open to change
+  # => Color brightness is determined by the following formula:
+  #    ((_R_ * 299) + (_G_ * 587) + (_B_ * 114)) / 1000
+  (( luminance = ((_R_ * 299) + (_G_ * 587) + (_B_ * 114)) / 1000 ))
+
+  printf "%3d\n" ${luminance}
+}
+
+function rgb-color-diff() {
+  [[ $# -eq 0 ]] && {
+    echo "=> $(@G3 rgb-color-diff) $(@Y3 ff4500) $(@C3 cd853f)"
+    return
+  }
+
+  # => RGB 十六进制颜色
+  local rgbcolor1="$1" rgbcolor2="$2"
+
+  # 十六进制 => 十进制
+  local _R1_ _G1_ _B1_   _R2_ _G2_ _B2_
+  _R1_=${rgbcolor1:0:2}; (( _R1_ = 16#${_R1_} ))
+  _G1_=${rgbcolor1:2:2}; (( _G1_ = 16#${_G1_} ))
+  _B1_=${rgbcolor1:4:2}; (( _B1_ = 16#${_B1_} ))
+
+  _R2_=${rgbcolor2:0:2}; (( _R2_ = 16#${_R2_} ))
+  _G2_=${rgbcolor2:2:2}; (( _G2_ = 16#${_G2_} ))
+  _B2_=${rgbcolor2:4:2}; (( _B2_ = 16#${_B2_} ))
+
+  local _xR_ _xG_ _xB_ rgb_diff
+  (( _xR_ = _R1_ - _R2_ )); (( _xR_ < 0 )) && (( _xR_ = 0 - _xR_ ))
+  (( _xG_ = _G1_ - _G2_ )); (( _xG_ < 0 )) && (( _xG_ = 0 - _xG_ ))
+  (( _xB_ = _B1_ - _B2_ )); (( _xB_ < 0 )) && (( _xB_ = 0 - _xB_ ))
+  # NOTE This is a suggested algorithm that is still open to change
+  # => Color difference is determined by the following formula:
+  #    ( maximum(_R1_, _R2_) - minimum(_R1_, _R2_) ) +
+  #    ( maximum(_G1_, _G2_) - minimum(_G1_, _G2_) ) +
+  #    ( maximum(_B1_, _B2_) - minimum(_B1_, _B2_) )
+  # The range for color difference is 500.
+  (( rgb_diff = _xR_ + _xG_ + _xB_ ))
+
+  # The range for color brightness difference is 125.
+  local brightness1 brightness2 brt_diff
+  brightness1=$(rgb-color-brightness ${rgbcolor1})
+  brightness2=$(rgb-color-brightness ${rgbcolor2})
+  (( brt_diff = brightness1 - brightness2 ))
+  [[ ${brt_diff} -lt 0 ]] && (( brt_diff = 0 - brt_diff ))
+
+  echo -e "$(@G9 ${rgb_diff}) => RGB 差异  $(@Y9 ${brt_diff}) => 亮度差异"
+  [[ -n "${ZSH_VERSION}" ]] && {
+    print -Pn "亮度=${brightness1} %{%F{#${rgbcolor1}}%}#${rgbcolor1}%f "
+    print -P  "亮度=${brightness2} %{%F{#${rgbcolor2}}%}#${rgbcolor2}%f"
+  }
+}
+
+function rgb-color() {
+  case "$1" in
+    diff) shift; rgb-color-diff $@ ;;
+    random) shift; rgb-color-random $@ ;;
+    brightness) shift; rgb-color-brightness $@ ;;
+  esac
+}
+
+function @pce:comp-rgb-color() {
+  local subcmds=( diff random brightness )
+  _describe 'command' subcmds
+}
+
+compdef @pce:comp-rgb-color rgb-color

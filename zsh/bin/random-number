@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+function random-number() {
+  echo
+  echo "Shell $(@D9 RANDOM) [0, 32767] => $(@G9 $RANDOM)"
+  echo "awk  随机数 [0, 999999] => $(@G9 $(awk 'BEGIN { srand(); print rand()*1000000; }'))"
+  echo
+  echo "依据当前时间生成(19位数字) => $(@G9 $(date +%s%N))"
+  echo "依据当前时间生成(8位数字)  => $(@G9 $(date +%s%N | cut -c6-13))"
+  echo "依据当前时间生成(校验值)   => $(@G9 $(date +%s%N | md5sum | head -c 8))"
+  echo
+
+  if command -v openssl >& /dev/null; then
+    # $ openssl help rand           $ openssl rand -hex N     生成 N 个字节, 以十六进制显示
+    # -base64 以 base64 格式显示    $ openssl rand -base64 N  生成 N 个字节, base64 格式显示
+    # -hex    以十六进制格式显示
+    echo "openssl 随机数(字母) => $(@G9 $(openssl rand -base64 8 | md5sum | cut -c1-8))"
+    echo "openssl 随机数(数字) => $(@G9 $(openssl rand -base64 8 | cksum  | cut -c1-8 ))"
+    echo
+  fi
+
+  # 文件较大, 值读取一部分, 然后进行操作产生随机数即可
+  # /dev/random   系统当前运行环境的实时数据, 读取可能产生阻塞
+  # /dev/urandom  系统当前运行环境的实时数据, 非阻塞式, 读取快
+  local dev='/dev/urandom'
+  echo -e "依据 $(@D9 ${dev}) 生成 => $(@G9 $(head -n 10 ${dev} | md5sum | head -c 10))"
+  echo -e "依据 $(@D9 ${dev}) 生成 => $(@G9 $(head -c 20 ${dev} | cksum  | head -c 10))"
+  echo
+  # UUID格式: 32个16进制数字, 连接符 -, 分五段, 形式为 8-4-4-4-12 形式的字符串
+  dev='/proc/sys/kernel/random/uuid'
+  echo -e "依据 $(@D9 ${dev}) 生成 => $(@G9 $(cat ${dev} | md5sum | cut -c1-8))"
+  echo -e "依据 $(@D9 ${dev}) 生成 => $(@G9 $(cat ${dev} | cksum  | cut -f1 -d' '))"
+  echo
+}
+
+random-number

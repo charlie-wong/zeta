@@ -1,0 +1,192 @@
+# SPDX-License-Identifier: Apache-2.0+ OR GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2023 Charlie WONG <charlie-wong@outlook.com>
+# Created By: Charlie WONG 2023-10-27T04:51:45+08:00 Asia/Shanghai
+# Repository: https://github.com/charlie-wong/charlie-wong
+
+# diff 输出格式控制 https://www.baeldung.com/linux/diff-command
+# => 2.6.1 Line Group Formats 和 2.6.2 Line Formats
+# https://www.gnu.org/software/diffutils/manual/diffutils.html
+# -> diff FILE1 FILE2
+#    %< 和 old 表示 FILE1 (FROM) 的变化, 两个文件中相等的行是 %= 和 unchanged
+#    %> 和 new 表示 FILE2 (TO)   的变化, old 和 new 都属于 changed 组
+
+# diff FILE1  FILE2
+# old  %<  小写  FILE1(FROM)
+# new  %>  大写  FILE2 (TO)
+
+# 仅显示两个文件内容相同的行
+function diff-ls-eq() {
+  [ $# -ne 2 ] && {
+    echo "=> $(@D9 diff-ls-eq) $(@Y9 file1) $(@G9 file2)"
+    return
+  }
+
+  local file1="$1" file2="$2" data IFS=$'\n'
+  data=( $( diff \
+          --old-group-format="" \
+          --new-group-format="" \
+      --changed-group-format="" \
+    --unchanged-group-format="␝%(F=L?L%dF:L%dF,L%dL)%c'\012'%=" \
+           --old-line-format="" \
+           --new-line-format="" \
+     --unchanged-line-format="%L" \
+    "${file1}" "${file2}")
+  )
+  local line what
+  for line in "${data[@]}"; do
+    what="${line%%[^␝]*}"
+    if [[ "${what}" == '␝' ]]; then
+      echo "$(@D9 "${line/[␝]/}")"
+    else
+      echo "$(@G3 "OK ==") ${line}"
+    fi
+  done
+}
+
+# 仅显示 file1 中独有的行
+function diff-ls-f1() {
+  [ $# -ne 2 ] && {
+    echo "=> $(@D9 diff-ls-f1) $(@Y9 file1) $(@G9 file2)"
+    return
+  }
+
+  local file1="$1" file2="$2" data IFS=$'\n'
+  data=( $( diff \
+        --old-group-format="␝%(f=l?L%df:L%df,L%dl)%c'\012'%<" \
+        --new-group-format="" \
+    --changed-group-format="" \
+  --unchanged-group-format="" \
+         --old-line-format="%L" \
+         --new-line-format="" \
+   --unchanged-line-format="" \
+    "${file1}" "${file2}")
+  )
+  local line what
+  for line in "${data[@]}"; do
+    what="${line%%[^␝]*}"
+    if [[ "${what}" == '␝' ]]; then
+      echo "$(@C3 ${line/[␝]/}) vs $(@R3 X)"
+    else
+      echo "$(@G9 F1) $(@D9 '->') ${line}"
+    fi
+  done
+}
+
+# 仅显示 file2 中独有的行
+function diff-ls-f2() {
+  [ $# -ne 2 ] && {
+    echo "=> $(@D9 diff-ls-f2) $(@Y9 file1) $(@G9 file2)"
+    return
+  }
+
+  local file1="$1" file2="$2" data IFS=$'\n'
+  data=( $( diff \
+        --old-group-format="" \
+        --new-group-format="␝%(F=L?L%dF:L%dF,L%dL)%c'\012'%>" \
+    --changed-group-format="" \
+  --unchanged-group-format="" \
+         --old-line-format="" \
+         --new-line-format="%L" \
+   --unchanged-line-format="" \
+    "${file1}" "${file2}")
+  )
+  local line what
+  for line in "${data[@]}"; do
+    what="${line%%[^␝]*}"
+    if [[ "${what}" == '␝' ]]; then
+      echo "$(@R3 X) vs $(@C3 ${line/[␝]/})"
+    else
+      echo "$(@Y9 F2) $(@D9 '<-') ${line}"
+    fi
+  done
+}
+
+# 仅显示 file1 和 file2 同时修改的行
+function diff-ls-fx() {
+  [ $# -ne 2 ] && {
+    echo "=> $(@D9 diff-ls-fx) $(@Y9 file1) $(@G9 file2)"
+    return
+  }
+
+  local file1="$1" file2="$2" data IFS=$'\n'
+  data=( $( diff \
+        --old-group-format="" \
+        --new-group-format="" \
+    --changed-group-format="␝%(f=l?L%df:L%df,L%dl)|%(F=L?L%dF:L%dF,L%dL)%c'\012'%<%>" \
+  --unchanged-group-format="" \
+         --old-line-format="␞%L" \
+         --new-line-format="%L" \
+   --unchanged-line-format="" \
+    "${file1}" "${file2}")
+  )
+  local line what old new
+  for line in "${data[@]}"; do
+    what="${line%%[^␝␞]*}"; line="${line/[␝␞]/}"
+    if [[ "${what}" == '␝' ]]; then
+      old="${line%%|*}"; new="${line#${old}|}"
+      echo "$(@R3 "${old}") vs $(@P3 ${new})"
+    elif [[ "${what}" == '␞' ]]; then
+      echo "$(@G9 F1) $(@D9 '->') ${line}"
+    else
+      echo "$(@Y9 F2) $(@D9 '<-') ${line}"
+    fi
+  done
+}
+
+function diff-ls-all() {
+  [ $# -ne 2 ] && {
+    echo "=> $(@D9 diff-ls-all) $(@Y9 file1) $(@G9 file2)"
+    return
+  }
+
+  local file1="$1" file2="$2" data IFS=$'\n'
+  data=( $( diff \
+        --old-group-format="␝␜%(f=l?L%df:L%df,L%dl)%c'\012'%<" \
+        --new-group-format="␝␞%(F=L?L%dF:L%dF,L%dL)%c'\012'%>" \
+    --changed-group-format="␝␟%(f=l?L%df:L%df,L%dl)|%(F=L?L%dF:L%dF,L%dL)%c'\012'%<%>" \
+  --unchanged-group-format="␝%(F=L?L%dF:L%dF,L%dL)%c'\012'%=" \
+         --old-line-format="␜%L" \
+         --new-line-format="␞%L" \
+   --unchanged-line-format="␟%L" \
+    "${file1}" "${file2}")
+  )
+  local line what old new
+  for line in "${data[@]}"; do
+    what="${line%%[^␝]*}"; line="${line#[␝]}"
+    if [[ "${what}" == '␝' ]]; then
+      what="${line%%[^␜␞␟]*}"; line="${line#[␜␞␟]}"
+      case "${what}" in
+        ␜) echo "$(@C3 ${line}) vs $(@R3 X)" ;;
+        ␞) echo "$(@R3 X) vs $(@C3 ${line})" ;;
+        ␟) old="${line%%|*}"; new="${line#${old}|}"
+           echo "$(@R3 "${old}") vs $(@P3 ${new})"
+          ;;
+        *) echo "$(@D9 "${line/[␝]/}")" ;;
+      esac
+    else
+      what="${line%%[^␜␞␟]*}"; line="${line#[␜␞␟]}"
+      case "${what}" in
+        ␜) echo "$(@G9 F1) $(@D9 '->') ${line}" ;;
+        ␞) echo "$(@Y9 F2) $(@D9 '<-') ${line}" ;;
+        ␟) echo "$(@G3 "OK ==") ${line}" ;;
+      esac
+    fi
+  done
+}
+
+function diff-ls() {
+  case "$1" in
+    eq) shift; diff-ls-eq $@ ;;
+    f1) shift; diff-ls-f1 $@ ;;
+    f2) shift; diff-ls-f2 $@ ;;
+    fx) shift; diff-ls-fx $@ ;;
+   all) shift; diff-ls-all $@ ;;
+  esac
+}
+
+function @pce:comp-diff-ls() {
+  local subcmds=( eq f1 f2 fx all )
+  _describe 'command' subcmds
+}
+
+compdef @pce:comp-diff-ls diff-ls

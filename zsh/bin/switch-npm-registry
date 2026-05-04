@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+! command -v npm &> /dev/null && exit
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+OLDVAL="$(npm get registry)"
+echo
+echo "当前源地址 => $(@C3 $(npm get registry))"
+echo
+echo "------------------------------------------------------"
+echo "-> $(@D9 默认) https://registry.npmjs.org/"
+npm set registry "https://registry.npmjs.org/"
+timeout 2s npm ping
+echo "------------------------------------------------------"
+echo "-> $(@B3 Yarn) https://registry.yarnpkg.com/"
+npm set registry "https://registry.yarnpkg.com/"
+timeout 2s npm ping
+echo "------------------------------------------------------"
+echo "-> $(@G9 淘宝) https://registry.npmmirror.com/"
+npm set registry "https://registry.npmmirror.com/"
+timeout 2s npm ping
+echo "------------------------------------------------------"
+echo "-> $(@Y9 腾讯) https://mirrors.cloud.tencent.com/npm/"
+npm set registry "https://mirrors.cloud.tencent.com/npm/"
+timeout 2s npm ping
+echo "------------------------------------------------------"
+
+echo; echo "切换到速度最快的源 ?"
+select VAR in "npmjs" "yarnpkg" "taobao" "tencent"; do break; done
+
+case "${VAR}" in
+    npmjs) npm set registry "https://registry.npmjs.org/" ;;
+  yarnpkg) npm set registry "https://registry.yarnpkg.com/" ;;
+   taobao) npm set registry "https://registry.npmmirror.com/" ;;
+  tencent) npm set registry "https://mirrors.cloud.tencent.com/npm/" ;;
+        *) npm set registry "${OLDVAL}" ;;
+esac
+
+echo
+echo "------------------------------------------------------"
+echo "当前源地址 $(@G9 $(npm get registry))"
+echo "切换源地址 npm set registry https://..."

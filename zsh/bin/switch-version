@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2017 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+RESET="\e[0m"; GREEN="\e[32m"; BLUE="\e[34m";
+
+# 版本切换控制
+case "$1" in
+  gcc|GCC)
+    sudo update-alternatives --config gcc
+    sudo update-alternatives --config cpp
+    sudo update-alternatives --config g++
+    sudo update-alternatives --config gcc-ar
+    sudo update-alternatives --config gcc-nm
+    sudo update-alternatives --config gcc-ranlib
+    # Verify installation
+    echo -e "Current ${GREEN}GCC${RESET} Version"
+    update-alternatives --display gcc
+    update-alternatives --display g++
+    echo
+    gcc --version
+    g++ --version
+    ;;
+  java|JAVA)
+    sudo update-alternatives --config jar
+    sudo update-alternatives --config java
+    sudo update-alternatives --config javac
+    sudo update-alternatives --config javah
+    sudo update-alternatives --config javaws
+    sudo update-alternatives --config javadoc
+    sudo update-alternatives --config mozilla-javaplugin.so
+    # Verify installation
+    echo -e "Current ${GREEN}JDK${RESET} Version"
+    update-alternatives --display java
+    update-alternatives --display javac
+    echo
+    java -version
+    javac -version
+    echo -e "${BLUE}迅为${RESET} Android 3.0 编译需要 ${GREEN}JDK 6${RESET}"
+    ;;
+  python|PYTHON)
+    sudo update-alternatives --config python
+    # Verify installation
+    echo -e "Current ${GREEN}Python${RESET} Version"
+    update-alternatives --display python
+    echo
+    python --version
+    ;;
+  *)
+    echo "${0##*/} [gcc|java|python]"
+    ;;
+esac
+
+# Install GCC 4.6
+# apt-get install gcc-4.4 g++-4.4 g++-4.4-multilib gcc-4.4-multilib
+#
+# 初始化配置，数字大的优先级高，即配置后默认使用 100 对应的 GCC 版本
+# sudo update-alternatives --install /usr/bin/gcc gcc               /usr/bin/gcc-4.4 50
+# sudo update-alternatives --install /usr/bin/gcc gcc               /usr/bin/gcc-4.8 100
+# sudo update-alternatives --install /usr/bin/cpp cpp               /usr/bin/cpp-4.4 50
+# sudo update-alternatives --install /usr/bin/cpp cpp               /usr/bin/cpp-4.8 100
+# sudo update-alternatives --install /usr/bin/g++ g++               /usr/bin/g++-4.4 50
+# sudo update-alternatives --install /usr/bin/g++ g++               /usr/bin/g++-4.8 100
+# sudo update-alternatives --install /usr/bin/gcc-ar gcc-ar         /usr/bin/gcc-ar-4.8 100
+# sudo update-alternatives --install /usr/bin/gcc-nm gcc-nm         /usr/bin/gcc-nm-4.8 100
+# sudo update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-4.8 100
+
+# sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 50
+# sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 100

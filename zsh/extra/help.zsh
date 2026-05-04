@@ -292,3 +292,26 @@ function ls-sh-complete() {
   fi
   echo; (( cnt % max != 0 )) && echo
 }
+
+# 9.3.1 Special Hook Functions
+function ls-sh-hooks() {
+  local hook
+  for hook in ${chpwd_functions[@]}; do
+    echo "$(@P3 chpwd) $(@D9 '->') $(@G9 ${hook})"
+  done
+  for hook in ${periodic_functions[@]}; do
+    echo "$(@P3 periodic) $(@D9 '->') $(@G9 ${hook})"
+  done
+  for hook in ${precmd_functions[@]}; do
+    echo "$(@P3 precmd) $(@D9 '->') $(@G9 ${hook})"
+  done
+  for hook in ${preexec_functions[@]}; do
+    echo "$(@P3 preexec) $(@D9 '->') $(@G9 ${hook})"
+  done
+  for hook in ${zshexit_functions[@]}; do
+    echo "$(@P3 zshexit) $(@D9 '->') $(@G9 ${hook})"
+  done
+  for hook in ${zshaddhistory_functions[@]}; do
+    echo "$(@P3 zshaddhistory) $(@D9 '->') $(@G9 ${hook})"
+  done
+}

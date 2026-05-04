@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+if [[ -z "$1" || -n "${1//[0-9]/}" ]]; then
+  echo
+  echo "用法 => $(@G9 ${0##*/}) $(@R3 PID)"
+  echo
+  echo "pstree \$USER   显示指定用户的进程树"
+  echo "pstree PID     显示指定 PID 的进程树"
+  echo "pstree         显示系统进程树, 同时显示 PID"
+  echo
+  echo "lscpu  列出 CPU 信息      ps -e   以标准格式显示所有进程信息"
+  echo "top    实时监控进程信息   top -i  实时监控进程信息, 隐藏 Idle 进程"
+  echo
+  exit
+fi
+
+echo "$(@C3 PSR) 进程当前运行的处理器核心    $(@C3 PPID) 父进程 ID"
+echo "$(@C3 PRI) 进程优先级(大数字低优先级)  $(@C3 CMD)  命令及参数"
+echo
+
+# -H 显示进程树            -e 选择所有进程, 等同于 -A
+# -j 显示 Jobs 列表       -F 显示预定义的额外信息
+# -o X,... 指定输出格式   -p XXX 指定 PID 号
+
+ps -o %cpu,psr,%mem,pri,ppid,cmd -p $1

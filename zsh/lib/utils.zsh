@@ -80,6 +80,38 @@ function @zeta:space-restore()    { builtin printf "$1" | sed -z 's/␟/\x20/g';
 function @zeta:newline-holder()   { builtin printf "$1" | sed -z 's/\x0a/␝/g'; }
 function @zeta:newline-restore()  { builtin printf "$1" | sed -z 's/␝/\x0a/g'; }
 
+# Trims leading and trailing whitespace from $2 and writes output to variable $1
+# 示例 local -a out; @zeta:trim-whitespace out "  is this ok ?  "
+function @zeta:trim-whitespace() {
+  [[ $# -ne 2 ]] && return 1
+
+  # NOTE 匹配 POSIX 非空白字符的扩展正则语法
+  # - [^[:space:]]  语法形式 Bash & Zsh 同时有效 <- USE IT, WHOLE WORLD QUIET
+  # - [\![:space:]] 语法形式 Bash & Zsh 同时有效
+  # - [![:space:]]  语法形式仅 Bash 有效, Zsh 会将 ！解析成读取历史命令操作
+  # 关于 POSIX 标准字符集 https://unix.stackexchange.com/questions/530350
+  local ovar=${1:?} text=${2:-}
+  text="${text#"${text%%[^[:space:]]*}"}" # remove leading whitespace
+  text="${text%"${text##*[^[:space:]]}"}" # remove trailing whitespace
+  builtin printf -v "${ovar}" '%s' "${text}"
+}
+
+# https://unix.stackexchange.com/questions/614299
+# $1 输出变量(数组)  $2 分隔符(单字符)  $3 格式化字符串
+# 示例 local -a out; @zeta:split-str out ':' "aa:bb:cc"
+function @zeta:split-str() {
+  [[ $# -ne 3 ]] && return 1
+
+  if [[ -n "${ZSH_VERSION}" ]]; then
+    # Zsh 5.0.8+ required
+    builtin eval "$1"'=("${(@ps:$2:)3}")'
+  elif [[ -n "${BASH_VERSION}" ]]; then
+    # Bash 4.4+ required for "local -"
+    local - IFS="$2"; set -o noglob
+    builtin eval "$1"'=( $3"" )'
+  fi
+}
+
 function @zeta:upper-first-char() {
   local rest="$1" char1="${1[1]}"
   rest[1]='' # 删除字符串的首个字符

@@ -8,7 +8,8 @@ source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
 
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
-no-cmd apt && exit 101
+
+no-cmd apt && exit
 
 if [[ $# -eq 0 ]]; then
   echo "正向依赖 $(@D9 ${0##*/}) $(@R3 PKG)"

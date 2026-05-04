@@ -107,9 +107,11 @@ function clean-system-logs() {
   unset -f delete-system-logs
 }
 
+# sudo apt purge  软件包
+# sudo apt remove 软件包
 function clean-system-trash() {
   if has-cmd apt; then
-    sudo apt autoclean # 删除无用包缓存 man apt-get
+    sudo apt autoclean  # 删除无用包缓存 man apt-get
     sudo apt autoremove # 删除自动安装的不再需要的软件包
     if dpkg -l | grep '^rc'; then # 清理软件卸载后残留的配置文件
        dpkg -l | grep '^rc' | awk '{print $2}' | sudo xargs dpkg --purge

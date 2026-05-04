@@ -1,0 +1,191 @@
+#!/usr/bin/env zsh
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+# https://git-scm.com/docs/git-status
+#
+# 空格  未修改   R     重命名
+# M     已修改   U     冲突: 已经更新, 但未合并
+# A     新添加   T     类型改变: 常规文件, 符号链接, 子模块 ...
+# D     已删除   C     文件拷贝: 需要特殊配置 status.renames='copies'
+# !!    已忽略   ??    未知文件, 没有进行版本追踪管理
+#
+# merge 常规状态: X 表示 Index 状态, Y 表示 working tree 状态
+# merge 有冲突时: 未合并的各种状态, XY 是 D/A/U 组合
+function ls-repo-status() {
+  local repoName  branchName  remoteName
+
+  repoName="$(git rev-parse --show-toplevel)"
+  [[ $? -ne 0 ]] && return
+  repoName="${repoName:t}"
+
+  local -a ignoredFiles  untrackedFiles
+  local aheadCnt=0  indexCnt=0 changedCnt=0 untrackedCnt=0 isRepoClean=0
+  local behindCnt=0 stashCnt=0 ignoredCnt=0 deletedCnt=0  conflictsCnt=0
+
+  local line  IFS=$'\n'  htcX  htcY  data
+  local match  mbegin  mend # Zsh 正则匹配
+  for line in $(git status --porcelain --branch --ignored); do
+    htcX="${line:0:1}" # 第一个字节
+    htcY="${line:1:1}" # 第二个字节
+    data="${line:3}"   # 跳过第三个字节(空格)
+
+    if [[ "${htcX}" == "#" && "${htcY}" == "#" ]]; then
+      if [[ "${data}" =~ '^No commits yet on (.*)$' || "${data}" =~ '^Initial commit on (.*)$' ]]; then
+    #->## No commits yet on XXX
+    #->## Initial commit on XXX
+        branchName="${match[1]}"
+      elif [[ "${data}" =~ '.*no branch.*' ]]; then # detached
+    #->## HEAD (no branch)
+        branchName=''
+      else
+        data=( ${=data/ /$'\n'} ) # 仅替换首个空格
+        if [[ ${#data[@]} == 1 ]]; then
+          data=( ${=data[1]//\./$'\n'} )
+          if [[ ${#data[@]} == 1 ]]; then
+    #->## XXX
+            branchName="${data[1]}" # 本地分支
+          else
+    #->## XXX...YYY/ZZZ
+            branchName="${data[1]}" # 本地分支
+            remoteName="${data[2]}" # 远程分支
+          fi
+        else
+    #->## XXX...RRR/ZZZ [ahead 5]
+    #->## XXX...RRR/ZZZ [behind 5]
+    #->## XXX...RRR/ZZZ [ahead 5, behind 3]
+          if [[ "${data[1]}" =~ '(.*)\.\.\.(.*)' ]]; then
+            branchName="${match[1]}" # 本地分支
+            remoteName="${match[2]}" # 远程分支
+          fi
+
+          data[2]="${data[2]//[\[\]]/}"
+          [[ "${data[2]}" =~ 'ahead ([0-9]*)(, )?' ]] && aheadCnt="${match[1]}"
+          [[ "${data[2]}" =~ 'behind ([0-9]*)' ]] && behindCnt="${match[1]}"
+        fi
+      fi
+    elif [[ "${htcX}" == "?" && "${htcY}" == "?" ]]; then
+    #->?? 文件名...
+      (( untrackedCnt += 1 ))
+      untrackedFiles+=( "${data}" )
+    elif [[ "${htcX}" == "!" && "${htcY}" == "!" ]]; then
+    #->!! 文件名...
+      (( ignoredCnt += 1 ))
+      ignoredFiles+=( "${data}" )
+    else
+      #echo "htcX(Index)状态=[${htcX}], htcY(WTree)状态=[${htcY}]"
+      case "${htcY}" in
+        M) (( changedCnt += 1 )) ;; # 工作目录修改
+        D) (( deletedCnt += 1 )) ;; # 工作目录删除
+      esac
+      case "${htcX}" in
+        U) (( conflictsCnt += 1 ))  ;; # index 区域冲突
+        # 匹配非空格
+        [^' ']) (( indexCnt += 1 )) ;; # index 准备提交
+      esac
+    fi
+  done
+
+  local shortHash tagNamesCnt=0 tagNames
+  shortHash="$(git rev-parse --short HEAD 2> /dev/null)"
+  tagNames="$(git for-each-ref --points-at=HEAD --count=10 --sort='-version:refname' --format='%(refname:short)' refs/tags 2> /dev/null)"
+  tagNamesCnt=$(echo "${tagNames}" | wc -l) # 当前 commit 的 tags 数量
+
+  echo; @D9 'Repository '; @G9 "${repoName}"
+  if [[ -n "${tagNames}" ]]; then
+    if [[ ${tagNamesCnt} -eq 1 ]]; then
+      @D9 " Tag "; @Y9 "${tagNames}"
+    else # 至少两个 tag
+      @D9 ' Tags['; @R3 "1/${tagNamesCnt}"; @D9 "] => "
+      @Y9 "$(echo ${tagNames} | head -n 1)"; @R3 ' ...'
+    fi
+    echo
+  else
+    printf ' '
+  fi
+
+  @D9 'Branch '; @B3 "${branchName}"
+  if [[ -n "${shortHash}" ]]; then
+    @D9 '('; @R3 "${shortHash}"; @D9 ")"
+  fi
+  if [[ -n "${remoteName}" ]]; then
+    @D9 ' -> '; @C3 "${remoteName}"
+  fi
+  echo; echo
+
+  # git rev-parse --git-dir 获取 .git 绝对路径或相对于当前目录的路径
+  local stashfile
+  stashfile="$(git rev-parse --git-dir)/logs/refs/stash"
+  if [[ $? -eq 0 && -f "${stashfile}" ]]; then
+    if [[ -n "$(< ${stashfile})" ]]; then
+      stashCnt=$(cat ${stashfile} | wc -l)
+    fi
+  fi
+
+  if (( indexCnt+changedCnt+untrackedCnt+stashCnt+deletedCnt+conflictsCnt )); then
+    isRepoClean=false
+  else
+    isRepoClean=true
+  fi
+
+  printf -v aheadCnt      '%-3d '  ${aheadCnt}
+  printf -v indexCnt      '%-3d '  ${indexCnt}
+  printf -v changedCnt    '%-3d '  ${changedCnt}
+  printf -v untrackedCnt  '%-3d '  ${untrackedCnt}
+
+  printf -v behindCnt     '%-3d '  ${behindCnt}
+  printf -v stashCnt      '%-3d '  ${stashCnt}
+  printf -v ignoredCnt    '%-3d '  ${ignoredCnt}
+  printf -v deletedCnt    '%-3d '  ${deletedCnt}
+
+  @D9 ' Ahead=';  @R3 "${aheadCnt}"
+  @D9 'Index=';   @R3 "${indexCnt}"
+  @D9 'Changed='; @R3 "${changedCnt}"
+  @D9 'Untrack='; @R3 "${untrackedCnt}"
+  @D9 'IsClean='
+  if ${isRepoClean}; then
+    @G3 "${isRepoClean}"
+  else
+    @R3 "${isRepoClean}"
+  fi
+  echo
+  @D9 'Behind=';    @R3 "${behindCnt}"
+  @D9 'Stash=';     @R3 "${stashCnt}"
+  @D9 'Ignored=';   @R3 "${ignoredCnt}"
+  @D9 'Deleted=';   @R3 "${deletedCnt}"
+  @D9 'Conflicts='; @R3 "${conflictsCnt}"
+  echo
+
+  local -i idx
+  if (( ignoredCnt )); then
+    echo
+    for ((idx=1; idx <= ${ignoredCnt}; idx++)); do
+      printf -v data "%02d" "${idx}"
+      @B9 'Ignored'; @D9 "[${data}]"; printf ' -> '
+      @B9 "${ignoredFiles[${idx}]}"; echo
+    done
+    [[ ${untrackedCnt} -eq 0 ]] && echo
+  fi
+
+  if (( untrackedCnt )); then
+    echo
+    for ((idx=1; idx <= ${untrackedCnt}; idx++)); do
+      printf -v data "%02i" "${idx}"
+      @R3 'Untrack'; @D9 "[${data}]"; printf ' -> '
+      @Y3 "${untrackedFiles[${idx}]}"; echo
+    done
+    echo
+  fi
+
+  if (( $# )); then
+    echo "Run the following git command for details"
+    @C3 'git status --porcelain --branch --ignored'
+    echo; echo
+  fi
+}
+
+ls-repo-status $@

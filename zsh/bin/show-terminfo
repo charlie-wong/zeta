@@ -1,0 +1,46 @@
+#!/usr/bin/env zsh
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+declare ESC_STR
+
+function fmt-esc-str() {
+  ESC_STR="$(echo -n "$1" | command od -An -w512 -ta)" # -tx1 | paste - -
+}
+
+# Zsh Only
+function terminfo-zsh()  {
+  local key val cnt=0 maxclm=5
+  for key val in ${(kv)terminfo[(I)k*]}; do
+    fmt-esc-str "${val}"
+    printf '%8s -> %-12s' ${key} "${ESC_STR// /}"
+    (( cnt++, cnt % maxclm == 0 )) && echo
+  done
+  (( cnt % maxclm != 0 )) && echo
+}
+
+# Bash/Zsh
+function terminfo-infocmp() {
+  local key val line escinfo first=1 IFS=$'\n'
+  for line in $(infocmp -L1); do
+    (( first )) && {
+      unset -v first
+      echo "Read frome => ${line##*file: }"
+      continue
+    }
+    line="${line%,}" # 删除行尾逗号
+    line="${line//#[[:space:]]/}" # 删除开头空白
+    key="${line%=*}"; val="${line#*=}"
+    if [[ "${key}" != "${val}" ]]; then
+      fmt-esc-str "${val}"
+      printf "%25s -> %s\n" ${key} "${ESC_STR// /}"
+    fi
+  done
+}
+
+if [[ $# -ne 0 ]]; then
+  terminfo-infocmp
+else
+  terminfo-zsh
+fi

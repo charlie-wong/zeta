@@ -2,11 +2,24 @@
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
 # Repository: https://github.com/charlie-wong/zeta
 
+# 26.2.5 Manipulating Hook Functions
+autoload -Uz add-zsh-hook
+
+# 从命令历史中删除 command not found 命令
+function @zeta:hook-rm-history-errcmd() {
+  if [ $? -eq 127 ]; then
+    sed -i "$(sed -n '$=' ${HISTFILE})d" ${HISTFILE}
+  fi
+}
+add-zsh-hook precmd @zeta:hook-rm-history-errcmd
+
 # Lazy Loading Just for Simple Plugin
 source "${ZETA_DIR}/zsh/lib/lazy.zsh"
 @zeta:lazy-register bd
 @zeta:lazy-register goto
 @zeta:lazy-register replace
+@zeta:lazy-register diff-ls
+@zeta:lazy-register rgb-color
 @zeta:lazy-register color-pipe
 @zeta:lazy-register cursor-style
 @zeta:lazy-register ssh-add-keys
@@ -22,6 +35,7 @@ function @zeta:-load-plugins() {
   for name in "${ZETA_PLUGINS[@]}"; do
     [[ ${name} == lazy ]] && continue
     if [[ -f "${ZETA_DIR}/zsh/plugins/${name}/main.zsh" ]]; then
+      # autoload => 17 Shell Builtin Commands
       autoload -Uz "${ZETA_DIR}/zsh/plugins/${name}/main.zsh"
     fi
   done

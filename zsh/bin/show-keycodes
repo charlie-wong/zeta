@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+# NOTE Usage Example
+# - show-keycodes <(echo ok)    -> /proc/self/fd/
+# - show-keycodes ok$'\t'       -> 位置参数
+# - show-keycodes               -> /dev/stdin 链接到当前终端 stdin
+# - echo ok | ./show-keycodes      /dev/stdin 链接到 named-pipe
+
+XX=$'\e[0m'
+D3=$'\e[0;30m'; R3=$'\e[0;31m'; G3=$'\e[0;32m'; Y3=$'\e[0;33m'
+B3=$'\e[0;34m'; P3=$'\e[0;35m'; C3=$'\e[0;36m'; W3=$'\e[0;37m'
+D9=$'\e[0;90m'; R9=$'\e[0;91m'; G9=$'\e[0;92m'; Y9=$'\e[0;93m'
+B9=$'\e[0;94m'; P9=$'\e[0;95m'; C9=$'\e[0;96m'; W9=$'\e[0;97m'
+
+declare -a LINES
+
+if [[ "$1" =~ /proc/self/fd/* ]]; then
+  LINES=( "$(printf '%s' "$(< $1 )" | command od -An -w16 -to1 -tu1 -tx1 -tc)" )
+elif [[ $# -ne 0 ]]; then
+  LINES=( "$(printf '%s' "$*"       | command od -An -w16 -to1 -tu1 -tx1 -tc)" )
+else
+  read -r data; # read from terminal stdin, just one-line
+  LINES=( "$(printf '%s' "${data}"  | command od -An -w16 -to1 -tu1 -tx1 -tc)" )
+fi
+
+IFS=$'\n'; counter=1
+for line in ${LINES}; do
+  (( counter%4 == 1 )) && echo "${D9}Oct ->${B3}${line}${XX}"
+  (( counter%4 == 2 )) && echo "${D9}Dec ->${Y9}${line}${XX}"
+  (( counter%4 == 3 )) && echo "${D9}Hex ->${G9}${line}${XX}"
+  (( counter%4 == 0 )) && echo "    ${D9}->${R3}${line}${XX}"
+  (( counter++ ))
+done
+
+# 显示一行(两行合并)
+# printf '%s' "$*" | command od -An -w16 -tx1 -ta | paste - -

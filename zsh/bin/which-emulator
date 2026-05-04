@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2020 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+# Disable file name generation(globbing)
+set -f
+
+# https://unix.stackexchange.com/questions/170428
+# NOTE Return the terminal emulator that this shell is running in.
+# - with more than one arguments return the name of the terminal emulator
+# - with no argument print command that was used to start terminal emulator
+
+ARGS=${1:-args}
+[[ $# -ne 0 ]] && ARGS=comm
+
+function which-emulator1() {
+  local _tty_  _pid_=${PPID}  items
+  _tty_=$(ps -p $$ -o tty=)
+  [[ $? -ne 0 ]] && return
+
+  while [[ ${_pid_} -ne 1 ]]; do
+    items="$(ps -p ${_pid_} -o ppid= -o tty= -o ${ARGS}=)"
+    [[ $? -ne 0 ]] && return
+
+    if [[ -n "${ZSH_VERSION:-}" ]]; then
+      set -- ${=items} # force word-split
+    else
+      set -- ${items} # split by defult
+    fi
+
+    #echo -e "pid=[${_pid_}]\t[$#]->[$1] [${_tty_}]?=[$2] [$3]"
+    [[ "$2" != "${_tty_}" ]] && break
+    _pid_=$1
+  done
+
+  case "$3" in
+    *tmux*)
+      items=$(tmux display-message -p "#{client_pid}")
+      printf '%s\n' "$(ps -p $(ps -p $(ps -p ${items} -o sid=) -o ppid=) -o ${ARGS}=)"
+      ;;
+    *)
+      shift; shift; printf '%s\n' "$*"
+      ;;
+  esac
+}
+
+function which-emulator2() {
+  local _tty_  _pid_=${PPID}  items
+  _tty_=$(ps -p $$ -o tty=)
+  [[ $? -ne 0 ]] && return
+
+  while [[ ${_pid_} -ne 1 ]]; do
+    items="$(ps -p ${_pid_} -o ppid= -o tty= -o ${ARGS}=)"
+    [[ $? -ne 0 ]] && return
+    if [[ -n "${ZSH_VERSION:-}" ]]; then
+      set -- ${=items} # force word-split
+    else
+      set -- ${items} # split by defult
+    fi
+    [[ "$2" != "${_tty_}" ]] && break
+    _pid_=$1
+  done
+  builtin echo "$3"
+}
+
+which-emulator2

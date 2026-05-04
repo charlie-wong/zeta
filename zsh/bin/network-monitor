@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2017 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+function main() {
+  # ip a, ip addr; ip l, ip link; ip r, ip route; ip n, ip neigh
+  # 获取当前使用的网卡名称
+  local IFNAME="$(ip neigh | cut -d' ' -f3 | sort -u)"
+  [[ $? -ne 0 ]] && exit $?
+
+  if ! ip a | grep "${IFNAME}" | grep 'inet' >& /dev/null; then
+    echo "获取<网卡名>失败 [$(@R3 ${IFNAME})]"; exit 1
+  fi
+
+  local RX_pre TX_pre  RX_next TX_next  RX TX  RUnit TUnit
+  while true; do # 每秒刷新一次
+    RX_pre=$(cat  /proc/net/dev | grep ${IFNAME} | sed 's/:/ /g' | awk '{ print $2  }')
+    TX_pre=$(cat  /proc/net/dev | grep ${IFNAME} | sed 's/:/ /g' | awk '{ print $10 }')
+    sleep 1
+    RX_next=$(cat /proc/net/dev | grep ${IFNAME} | sed 's/:/ /g' | awk '{ print $2  }')
+    TX_next=$(cat /proc/net/dev | grep ${IFNAME} | sed 's/:/ /g' | awk '{ print $10 }')
+
+    (( RX = ${RX_next} - ${RX_pre} ))
+    (( TX = ${TX_next} - ${TX_pre} ))
+
+    if [[ ${RX} -lt 1024 ]]; then
+      RUnit="B/s"
+    elif [[ ${RX} -gt 1048576 ]]; then
+      RUnit="MB/s"
+      RX=$(echo ${RX} | awk '{print $1/1048576}')
+    else
+      RUnit="KB/s"
+      RX=$(echo ${RX} | awk '{print $1/1024}')
+    fi
+
+    if [[ ${TX} -lt 1024 ]];then
+      TUnit="B/s"
+    elif [[ ${TX} -gt 1048576 ]];then
+      TUnit="MB/s"
+      TX=$(echo ${TX} | awk '{print $1/1048576}')
+    else
+      TUnit="KB/s"
+      TX=$(echo ${TX} | awk '{print $1/1024}')
+    fi
+
+    clear
+    echo "#########################################"
+    echo "# Monitor Network Upload/Download Speed #"
+    echo "#         Press $(@R3 'Ctrl + C') to Exit        #"
+    echo "#########################################"
+    printf "           Time : "; @D9 "$(date +%k:%M:%S)"; echo
+    printf "      Interface : "; @Y9 ${IFNAME}; echo
+    printf "   Upload Speed : "; @R3 "${TX} "; @D9 ${RUnit}; echo
+    printf " Download Speed : "; @G9 "${RX} "; @D9 ${TUnit}; echo
+  done
+}; main
+
+# 读取运行时文件系统 /proc/net/dev 中的网络实时数据，并经过简单计算后显示
+#
+# Linux内核提供了一种通过/proc文件系统，在运行时访问内核内部数据结构/改变内核设置的机制
+# proc文件系统是一个伪文件系统，它只存在内存当中而不占用外存空间。它以文件系统的方式为访问
+# 系统内核数据的操作提供接口。用户和应用程序可以通过proc得到系统信息，并可以改变内核的某些
+# 参数。由于系统信息(如进程信息)是动态改变的，所以用户或应用程序读取proc文件时，proc文件
+# 系统是动态的从系统内核读出所需信息并提交的。/proc文件系统中包含了很多目录，其中
+# /proc/net/dev 保存了网络适配器及统计信息。
+
+# Inter-face  网卡接口名称    packets   收发正确的包量    drop   收发丢弃的包量
+# bytes       收发的字节数    errs      收发错误的包量
+
+# $ cat /proc/net/dev
+# Inter-|Receive                                                       |Transmit
+#  face |bytes      packets errs drop fifo frame  compressed multicast |bytes    packets errs drop fifo colls carrier compressed
+#     lo: 347858    3476    0    0    0    0      0          0          347858   3476    0    0    0    0     0       0
+# enp5s0: 0         0       0    0    0    0      0          0          0        0       0    0    0    0     0       0
+# wlp4s0: 566663906 423564  0    0    0    338849 0          0          29199360 278846  95   0    0    0     0       0
+
+# https://excess.org/speedometer/
+# https://github.com/wardi/speedometer
+# https://www.cnblogs.com/klb561/articles/9080151.html
