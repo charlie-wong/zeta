@@ -4,7 +4,7 @@ authors = ["Charles Wong"]
 description = "Personal Terminal and System Configurations."
 language = "en"
 text-direction = "ltr"
-src = "contents"
+src = "content"
 
 [build]
 build-dir = "website" # directory where the output is placed
