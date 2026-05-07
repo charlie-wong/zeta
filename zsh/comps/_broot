@@ -14,19 +14,20 @@ _broot() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
-'--conf=[Semicolon separated paths to specific config files]:paths: ' \
+    _arguments "${_arguments_options[@]}" : \
+'--conf=[Semicolon separated paths to specific config files]:paths:_default' \
+'--max-depth=[Only show trees up to a certain depth]:MAX_DEPTH:_default' \
 '--outcmd=[Where to write the produced cmd (if any)]:path:_files' \
 '--verb-output=[Optional path for verbs using \`\:write_output\`]:verb-output:_files' \
-'-c+[Semicolon separated commands to execute]:cmd: ' \
-'--cmd=[Semicolon separated commands to execute]:cmd: ' \
+'-c+[Semicolon separated commands to execute]:cmd:_default' \
+'--cmd=[Semicolon separated commands to execute]:cmd:_default' \
 '--color=[Whether to have styles and colors]:color:(auto yes no)' \
-'--height=[Height (if you don'\''t want to fill the screen or for file export)]:height: ' \
+'--height=[Height (if you don'\''t want to fill the screen or for file export)]:height:_default' \
 '--set-install-state=[Manually set installation state]:state:(undefined refused installed)' \
-'--print-shell-function=[Print to stdout the br function for a given shell]:shell: ' \
-'--listen=[A socket to listen to for commands]:socket: ' \
+'--print-shell-function=[Print to stdout the br function for a given shell]:shell:_default' \
+'--listen=[A socket to listen to for commands]:socket:_default' \
 '--write-default-conf=[Write default conf files in given directory]:path:_files' \
-'--send=[A socket to send commands to]:socket: ' \
+'--send=[A socket to send commands to]:socket:_default' \
 '--help[Print help information]' \
 '--version[print the version]' \
 '-d[Show the last modified date of files and directories]' \
@@ -77,6 +78,7 @@ _broot() {
 '-T[Don'\''t trim the root level, show a scrollbar]' \
 '--no-trim-root[Don'\''t trim the root level, show a scrollbar]' \
 '--install[Install or reinstall the br shell function]' \
+'--listen-auto[create a random socket to listen to for commands]' \
 '--get-root[Ask for the current root of the remote broot]' \
 '::root -- Root Directory:_files' \
 && ret=0
