@@ -118,8 +118,23 @@ function @zeta:-init-alias() {
 @zeta:-init-alias
 unset -f @zeta:-init-alias
 
-# https://dystroy.org/broot/install-br
-@zeta:has-cmd broot && BR_INSTALL=no
+# https://dystroy.org/broot/launch/
+@zeta:has-cmd broot && {
+  # broot --print-shell-function=zsh
+  function br() {
+    local  cmd  file  code
+    file=$(mktemp) # $TMPDIR > /tmp
+    if broot --outcmd "${file}" "$@"; then
+      cmd=$( < "${file}" )
+      command rm -f "${file}"
+      eval "${cmd}"
+    else
+      code=$?
+      command rm -f "${file}"
+      return "${code}"
+    fi
+  }
+}
 
 @zeta:no-cmd zduf && alias zduf='du -h -s'
 @zeta:no-cmd zdud && alias zdud='du -h -d 1'

@@ -76,6 +76,8 @@ source "${ZETA_DIR}/zsh/lib/message.zsh"
 source "${ZETA_DIR}/zsh/lib/getopts.zsh"
 source "${ZETA_DIR}/zsh/lib/completion.zsh"
 
+path-head-add "${ZETA_DIR}/bin"
+
 source "${ZETA_DIR}/zsh/alias.zsh"
 source "${ZETA_DIR}/zsh/export.zsh"
 source "${ZETA_DIR}/zsh/options.zsh"

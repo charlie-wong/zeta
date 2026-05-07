@@ -2,8 +2,6 @@
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
 # Repository: https://github.com/charlie-wong/zeta
 
-path-head-add "${ZETA_DIR}/bin"
-
 # RubyGems 第三方依赖软件包的安装位置 GEM_HOME
 # https://jekyllrb.com/docs/installation/ubuntu
 # 中科 https://mirrors.ustc.edu.cn/help/rubygems.html
