@@ -2,8 +2,15 @@
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
 # Repository: https://github.com/charlie-wong/zeta
 
+# 17 Shell Builtin Commands
 # 26.2.5 Manipulating Hook Functions
 autoload -Uz add-zsh-hook
+
+# autoload -Uz hello
+# -U  加载文件时禁用别名  -X 立即加载并执行
+# -k  KSH 风格: 首次加载  执行 hello() 函数
+# -z  ZSH 风格: 首次加载不执行 hello() 函数
+# hello() { autoload -X; } 效果类似于 autoload -Uk hello
 
 # 从命令历史中删除 command not found 命令
 function @zeta:hook-rm-history-errcmd() {
@@ -25,18 +32,12 @@ source "${ZETA_DIR}/zsh/lib/lazy.zsh"
 @zeta:lazy-register ssh-add-keys
 @zeta:lazy-register xcmd $(command ls --hide='*.*' "${ZETA_DIR}/zsh/bin")
 
-# autoload -Uz hello
-# -U  加载文件时禁用别名  -X 立即加载并执行
-# -k  KSH 风格: 首次加载  执行 hello() 函数
-# -z  ZSH 风格: 首次加载不执行 hello() 函数
-# hello() { autoload -X; } 效果类似于 autoload -Uk hello
 function @zeta:-load-plugins() {
   local name
   for name in "${ZETA_PLUGINS[@]}"; do
     [[ ${name} == lazy ]] && continue
     if [[ -f "${ZETA_DIR}/zsh/plugins/${name}/main.zsh" ]]; then
-      # autoload => 17 Shell Builtin Commands
-      autoload -Uz "${ZETA_DIR}/zsh/plugins/${name}/main.zsh"
+      source "${ZETA_DIR}/zsh/plugins/${name}/main.zsh"
     fi
   done
 }

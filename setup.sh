@@ -16,8 +16,8 @@ cp "${THIS_DIR}/zsh/extra/startup/1shenv"  "${HOME}/.zshenv"
 cat > "${HOME}/.zshrc" <<EOF
 ###### 命令历史 ######
 HISTFILE="${HOME}/.zsh-history"
-HISTSIZE=2000 # 终端会话最多可保留历史命令行数
-SAVEHIST=3000 # 历史命令 HISTFILE 最大保留行数
+HISTSIZE=3000 # 终端会话最多可保留历史命令行数
+SAVEHIST=6000 # 历史命令 HISTFILE 最大保留行数
 
 ###### 自动补全 ######
 # 命令补全 completion dump 缓存文件的保存位置
