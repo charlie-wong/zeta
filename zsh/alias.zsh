@@ -119,6 +119,7 @@ function @zeta:-init-alias() {
 unset -f @zeta:-init-alias
 
 # https://dystroy.org/broot/launch/
+# https://dystroy.org/broot/install-br/
 @zeta:has-cmd broot && {
   # broot --print-shell-function=zsh
   function br() {

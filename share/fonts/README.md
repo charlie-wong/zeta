@@ -1,5 +1,9 @@
 # 更纱黑体
 
+- KDE 系统字体 Sarasa Mono SC
+- Kate 编辑器  Sarasa Mono SC
+- konsole 终端 Sarasa Term SC
+
 - 预览 <https://typeof.net/Iosevka>
 - 镜像 <https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis>
 - <https://github.com/be5invis/Iosevka/blob/main/doc/PACKAGE-LIST.md>
@@ -30,7 +34,7 @@
 # 字体文件解压缩到 ~/.local/share/fonts 目录即可
 7z l SarasaMonoSC-TTF-1.0.37.7z # 显示压缩包的文件列表
 7z e SarasaTermSC-TTF-1.0.37.7z SarasaMonoSC-Regular.ttf
-fc-cache -v ~/.local/share/fonts/ # -v 显示执行详情信息
+fc-cache -v -f ~/.local/share/fonts/ # 重新生成字体缓存
 
 # 字形语言
 #   SC 简体中文(大陆)   CL 古典字形
@@ -68,3 +72,10 @@ fc-query -f '%{fontversion} | %{family} | %{familylang} | %{style}\n' path/to/x.
 | /etc/fonts/fonts.conf           | /var/cache/fontconfig/ |
 | /etc/fonts/fonts.dtd            |                        |
 ```
+
+# VS Code ICON 字体
+
+`broot` 终端文件图标
+
+- <https://github.com/vscode-icons/vscode-icons/>
+- <https://github.com/Canop/broot/blob/main/resources/icons/vscode/vscode.ttf>
