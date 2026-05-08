@@ -8,12 +8,12 @@
 <div align="center">
 
 <!-- https://shields.io/badges/git-hub-commit-activity -->
-![stable](https://img.shields.io/github/v/release/charlie-wong/template?label=stable)
-![prepare](https://img.shields.io/github/commits-since/charlie-wong/template/latest?label=prepare)
-![activity](https://img.shields.io/github/commit-activity/m/charlie-wong/template?label=activity)
-![commit](https://img.shields.io/github/last-commit/charlie-wong/template?label=commit&color=hotpink)
-![language](https://img.shields.io/github/languages/top/charlie-wong/template)
-![birth](https://img.shields.io/github/created-at/charlie-wong/template?label=birth)
+![stable](https://img.shields.io/github/v/release/charlie-wong/zeta?label=stable)
+![prepare](https://img.shields.io/github/commits-since/charlie-wong/zeta/latest?label=prepare)
+![activity](https://img.shields.io/github/commit-activity/m/charlie-wong/zeta?label=activity)
+![commit](https://img.shields.io/github/last-commit/charlie-wong/zeta?label=commit&color=hotpink)
+![language](https://img.shields.io/github/languages/top/charlie-wong/zeta)
+![birth](https://img.shields.io/github/created-at/charlie-wong/zeta?label=birth)
 
 ##### 🎇 字符终端、开发工具、操作系统配置及常用脚本。 🎇
 
