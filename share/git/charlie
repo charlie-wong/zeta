@@ -19,5 +19,5 @@
   sort = -version:refname
 
 [include]
-  path = ~/.config/git/main-config
-  path = ~/.config/git/cmd-aliases
+  path = ~/.config/git/config
+  path = ~/.config/git/aliases

@@ -221,7 +221,8 @@ l3    = log3-both-date
 # --oneline shorthand for `--pretty=oneline --abbrev-commit`
 lo    = log --oneline # reverse chronological order, newest first
 lor   = log --oneline --reverse # chronological order, the oldest first
-
+lp    = log --pretty=simple # 定义于 config 文件的 [pretty]
+lg    = log --graph --all
 ll    = log --boundary \
   --format=format:'%m %C(red)%h %C(green)%as %C(dim white)%ae %C(reset)%s%C(yellow)%d'
 
@@ -246,6 +247,7 @@ log2-author-date    = log --abbrev-commit --decorate --boundary \
   --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(cyan)%ai %C(white)- %C(green)%ar%C(yellow)%d%n  %C(blue)%an%C(reset) %s'
 log2-committer-date = log --abbrev-commit --decorate --boundary \
   --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(cyan)%ci %C(white)- %C(green)%cr%C(yellow)%d%n  %C(blue)%cn%C(reset) %s'
+
 # three(3) line log for per commit
 log3-both-date      = log --abbrev-commit --decorate --boundary \
   --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(white)%s%C(yellow)%d%nA %C(cyan)%ai %C(green)%ar %C(blue)%an <%ae>%nC %C(dim white)%ci %C(green)%cr %C(cyan)%cn <%ce>'
