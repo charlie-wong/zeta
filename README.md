@@ -1,11 +1,8 @@
 <div align="center">
-  <a href="/">
-    <img height="150" src="/docs/assets/bio.svg" alt="logo">
-  </a>
-  <h1>Zeta</h1>
-</div>
 
-<div align="center">
+[![bio](/docs/assets/bio.svg)](/)
+
+# Zeta
 
 <!-- https://shields.io/badges -->
 [badge1]: https://img.shields.io/github/actions/workflow/status/charlie-wong/zeta/ci.yml
@@ -25,7 +22,7 @@
 [![language][badge7]](/)
 [![birthday][badge8]](/)
 
-##### 🎇 字符终端、开发工具、操作系统配置及常用脚本。 🎇
+##### 系统配置、终端配置、常用脚本及开发工具。
 
 </div>
 
@@ -47,12 +44,9 @@ All assets are released under the
 and otherwise under their terms and license respectively.
 
 <div align="center">
-  <a href="/"><img width="200" src="/docs/assets/octocat.gif" alt="octocat"></a>
-</div>
-
-<div align="center">
-<strong>⭐Hit the star button if you found this is useful.⭐</strong><br>
-<strong>❤I hope it will work well, and any
-<a href="https://github.com/charlie-wong/zeta/issues">bug report</a>
-is welcome.❤</strong>
+<a href="/">
+  <img width="200" src="/docs/assets/octocat.gif" alt="octocat">
+</a>
+<strong>Hit the star button if you found this is useful.</strong><br>
+<strong>I hope it will work well, and any bug report is welcome.</strong>
 </div>
