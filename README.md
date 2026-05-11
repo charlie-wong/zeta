@@ -18,10 +18,10 @@
 [badge8]: https://img.shields.io/github/created-at/charlie-wong/zeta?label=birth
 [badge9]: https://shields.io/badges/matrix
 
-[![commits-since-latest][badge2]](/)
-[![latest-release][badge3]](/releases/latest)
-[![commit-activity][badge5]](/)
-[![last-commit][badge6]](/commits/trunk/)
+[![commits-since-latest][badge2]](https://github.com/charlie-wong/zeta/commits/trunk)
+[![latest-release][badge3]](https://github.com/charlie-wong/zeta/releases/latest)
+[![commit-activity][badge5]](https://github.com/charlie-wong/zeta/graphs/commit-activity)
+[![last-commit][badge6]](https://github.com/charlie-wong/zeta/commits/trunk)
 [![language][badge7]](/)
 [![birthday][badge8]](/)
 
