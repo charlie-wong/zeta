@@ -46,8 +46,7 @@ and otherwise under their terms and license respectively.
 <div align="center">
 <a href="/">
   <img width="200" src="/docs/assets/octocat.gif" alt="octocat">
-</a>
-
+</a><br>
 <strong>Hit the star button if you found this is useful.</strong><br>
 <strong>I hope it will work well, and any bug report is welcome.</strong>
 </div>
