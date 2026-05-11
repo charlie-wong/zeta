@@ -370,21 +370,25 @@ ssb   = status --short --branch
 # show git aliases list in the terminal
 aliases = "!git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'"
 
-# NOTE This will not work when in a git repo's subdirectory.
-# Initalize a repo and immediately add an empty rebaseable commit. This makes
-# later rebase easier, because it can go all the way back to the first commit.
-#
 # MD5     哈希值 16 字节   SHA256    哈希值 32 字节
 # SHA1    哈希值 20 字节   SHA384    哈希值 49 字节
 # SHA224  哈希值 28 字节   SHA512    哈希值 64 字节
-init-repo1 = "!f() { \
-  git init --object-format=sha1;   \
+init-sha1 = "!f() { \
+  if $(git rev-parse --is-inside-work-tree 2> /dev/null); then \
+    echo 'SKIP: it is inside git work tree.'; \
+    return; \
+  fi; \
+  git init --template --object-format=sha1;   \
   git commit --allow-empty --message 'init: repository initial commit'; \
 }; f"
 
 # NOTE GitHub not support SHA256 format repository.
-init-repo2 = "!f() { \
-  git init --object-format=sha256; \
+init-sha256 = "!f() { \
+  if $(git rev-parse --is-inside-work-tree 2> /dev/null); then \
+    echo 'SKIP: it is inside git work tree.'; \
+    return; \
+  fi; \
+  git init --template --object-format=sha256; \
   git commit --allow-empty --message 'init: repository initial commit'; \
 }; f"
 
