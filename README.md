@@ -18,12 +18,12 @@
 [badge8]: https://img.shields.io/github/created-at/charlie-wong/zeta?label=birth
 [badge9]: https://shields.io/badges/matrix
 
-[![commits-since-latest][badge2]][/]
-[![latest-release][badge3]](https://github.com/charlie-wong/zeta/releases/latest)
-[![commit-activity][badge5]][/]
-[![last-commit][badge6]](https://github.com/charlie-wong/zeta/commits/trunk/)
-[![language][badge7]][/]
-[![birthday][badge8]][/]
+[![commits-since-latest][badge2]](/)
+[![latest-release][badge3]](/releases/latest)
+[![commit-activity][badge5]](/)
+[![last-commit][badge6]](/commits/trunk/)
+[![language][badge7]](/)
+[![birthday][badge8]](/)
 
 ##### 🎇 字符终端、开发工具、操作系统配置及常用脚本。 🎇
 
