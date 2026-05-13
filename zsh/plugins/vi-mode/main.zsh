@@ -20,7 +20,7 @@
 KEYTIMEOUT=50 # 50/100 = 0.5 秒
 
 # echo -n ${terminfo[kcuu1]} | hexyl 显示转义序列值
-zmodload zsh/termcap  # echo "${(k)termcap[(I)k*]}"
+#zmodload zsh/termcap # echo "${(k)termcap[(I)k*]}"
 zmodload zsh/terminfo # echo "${(k)terminfo[(I)k*]}"
 
 # Executed when ZLE is started to read a new line of input
@@ -76,12 +76,21 @@ zle -N zle-keymap-select
 # main is default keymap when ZLE starts up
 bindkey -v # make viins keymap as main & default
 
+function zvm-bindkey() {
+  local kmap="$1" ties="$2" hook="$3"
+  if [[ -z "${ties}" ]]; then
+    @zeta:wmsg "skip bind <${hook}> to none."
+    return
+  fi
+  bindkey  -M  "${kmap}"  "${ties}"  "${hook}"
+}
+
 function zvm-main() {
   # https://invisible-island.net/ncurses/ncurses.faq.html
   # https://invisible-island.net/ncurses/man/terminfo.5.html
   # https://invisible-island.net/xterm/xterm-function-keys.html
   local -A key=(
-    Back    "${terminfo[kbs]}"
+    Back    "${terminfo[kbs]}"        Ctrl+Back   '^H'
 
     Up      "${terminfo[kcuu1]}"      Ctrl+Up     "${terminfo[kUP5]}"
     Down    "${terminfo[kcud1]}"      Ctrl+Down   "${terminfo[kDN5]}"
@@ -96,41 +105,35 @@ function zvm-main() {
     PgDn    "${terminfo[knp]}"        Ctrl+PgDn   "${terminfo[kNXT5]}"
   )
 
-  case "$(ps -p ${PPID} -o comm=)" in
-    *konsole*)
-      key[Ctrl+Back]='^H'
-    ;;
-  esac
-
   local kmap
   for kmap in vi{cmd,ins}; do
-    bindkey  -M  ${kmap}  "${key[Home]}"        beginning-of-line
-    bindkey  -M  ${kmap}  "${key[End]}"         end-of-line
+    zvm-bindkey  ${kmap}  "${key[Home]}"          beginning-of-line
+    zvm-bindkey  ${kmap}  "${key[End]}"           end-of-line
 
-    bindkey  -M  ${kmap}  "${key[Ctrl+Home]}"   backward-kill-line
-    bindkey  -M  ${kmap}  "${key[Ctrl+End]}"    kill-line
+    zvm-bindkey  ${kmap}  "${key[Ctrl+Home]}"     backward-kill-line
+    zvm-bindkey  ${kmap}  "${key[Ctrl+End]}"      kill-line
 
-    bindkey  -M  ${kmap}  "${key[Left]}"        backward-char
-    bindkey  -M  ${kmap}  "${key[Right]}"       forward-char
+    zvm-bindkey  ${kmap}  "${key[Left]}"          backward-char
+    zvm-bindkey  ${kmap}  "${key[Right]}"         forward-char
 
-    bindkey  -M  ${kmap}  "${key[Ctrl+Left]}"   backward-word
-    bindkey  -M  ${kmap}  "${key[Ctrl+Right]}"  forward-word
+    zvm-bindkey  ${kmap}  "${key[Ctrl+Left]}"     backward-word
+    zvm-bindkey  ${kmap}  "${key[Ctrl+Right]}"    forward-word
 
-    bindkey  -M  ${kmap}  "${key[Up]}"          up-line-or-history
-    bindkey  -M  ${kmap}  "${key[Down]}"        down-line-or-history
+    zvm-bindkey  ${kmap}  "${key[Up]}"            up-line-or-history
+    zvm-bindkey  ${kmap}  "${key[Down]}"          down-line-or-history
 
-    bindkey  -M  ${kmap}  "${key[PgUp]}"        up-line-or-search
-    bindkey  -M  ${kmap}  "${key[PgDn]}"        down-line-or-search
+    zvm-bindkey  ${kmap}  "${key[PgUp]}"          up-line-or-search
+    zvm-bindkey  ${kmap}  "${key[PgDn]}"          down-line-or-search
   done
 
-  bindkey  -M  viins  "${key[Back]}"        backward-delete-char
-  bindkey  -M  viins  "${key[Del]}"         delete-char
+  zvm-bindkey  viins  "${key[Back]}"              backward-delete-char
+  zvm-bindkey  viins  "${key[Del]}"               delete-char
 
-  bindkey  -M  viins  "${key[Ctrl+Back]}"   backward-delete-word
-  bindkey  -M  viins  "${key[Ctrl+Del]}"    delete-word
+  zvm-bindkey  viins  "${key[Ctrl+Back]}"         backward-delete-word
+  zvm-bindkey  viins  "${key[Ctrl+Del]}"          delete-word
 }
 
-zvm-main; unset -f zvm-main
+zvm-main; unset -f zvm-main zvm-bindkey
 
 bindkey  -M  vicmd  'h'   backward-char           # left
 bindkey  -M  vicmd  'j'   down-line-or-history    # down

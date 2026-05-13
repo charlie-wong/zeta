@@ -8,6 +8,12 @@
 # https://invisible-island.net/ncurses/terminfo.ti.html
 # http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html
 
+case "$(ps -p ${PPID} -o comm=)" in
+  konsole) echo konsole; ;;
+  yakuake) echo yakuake; ;;
+  lapce)   echo lapce; ;;
+esac
+
 # 未指定 keymap 时, 默认 keymap 是 main
 # bindkey -l              显示可用 keymap 名字列表
 # bindkey -M  <keymap>    显示 keymap 绑定命令和操作
