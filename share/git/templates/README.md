@@ -9,6 +9,9 @@
 ```bash
 # 将 foo 目录下非<点>开头的文件复制到新建仓库的 .git 目录
 git init --template=path/to/foo && git reset --hard
+
+# 优先级: git init --template > GIT_TEMPLATE_DIR > init.templateDir > 默认模板
+git init --template= # 使用 git 默认模板
 ```
 
 - none      仅包含 .gitignore 文件
