@@ -141,7 +141,6 @@ function @zeta:-vendor-delete-link() {
     return
   fi
 
-
   for binEXE in $(ls "${pkgBIN}"); do
     [[ -h "${binDIR}/${binEXE}" ]] && {
       printf "Delete $(@D9 'zeta/bin/')$(@Y3 %-18s) $(@D9 '->') " ${binEXE}
@@ -193,7 +192,10 @@ function zeta-switch() {
 
   if [[ "$1" == reset ]]; then
     case "$2" in
-      cmake|go|java|nim|node|rust|helix) @zeta:-vendor-delete-link $2; return ;;
+      cmake|go|java|nim|node|rust|helix)
+        @zeta:-vendor-delete-link $2
+        return
+        ;;
       *) echo "invalid $(@D9 vendor/)$(@R3 $2) package"; return 1 ;;
     esac
   fi
