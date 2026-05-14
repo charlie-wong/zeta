@@ -1,0 +1,25 @@
+[Desktop Entry]
+Version=1.5
+
+Name=Zed
+GenericName=Text Editor
+Comment=A high-performance multiplayer code editor.
+Icon=/me/zeta/share/icons/zed-ide.png
+Categories=Development;IDE;TextEditor;
+
+TryExec=zed
+Exec=zed %U
+
+Terminal=false
+Type=Application
+StartupNotify=true
+
+# To add Zed to "Open Folder With..." context menu, add `inode/directory` to MimeType
+# Arch linux users have reported this setting Zed as default file browser.
+# See https://github.com/zed-industries/zed/pull/39076 and related issues.
+MimeType=text/plain;application/x-zerosize;x-scheme-handler/zed;
+Actions=NewWorkspace;
+
+[Desktop Action NewWorkspace]
+Exec=zed --new %U
+Name=Open a new workspace

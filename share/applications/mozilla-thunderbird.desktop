@@ -1,0 +1,32 @@
+[Desktop Entry]
+Version=1.5
+
+Name=Thunderbird
+GenericName=Mail Client
+Keywords=Email;E-mail;Newsgroup;Feed;RSS
+Comment=Send and receive mail with Thunderbird
+Icon=/me/zeta/share/icons/mozilla-thunderbird.png
+Categories=Network;Email;
+
+# Error if not found in $PATH
+Exec=thunderbird %u
+
+Terminal=false
+Type=Application
+StartupNotify=true
+#Path=启动后的工作目录
+
+MimeType=x-scheme-handler/mailto;application/x-xpinstall;
+# 鼠标左击显示菜单项(以不同方式启动程序)
+Actions=Compose;Contact
+
+# X- 非标准扩展参数
+X-MultipleArgs=false
+
+[Desktop Action Compose]
+Name=Compose New Message
+Exec=thunderbird -compose
+
+[Desktop Action Contact]
+Name=Contact Address Book
+Exec=thunderbird -addressbook

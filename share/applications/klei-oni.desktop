@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.5
+
+Name=Klei ONI
+Comment=Oxygen Not Included
+Icon=/me/zeta/share/icons/klei-oni.png
+Categories=Game;KDE;Qt;
+
+# Ignored if not found in $PATH
+TryExec=oxygen-not-included
+
+Terminal=false
+Type=Application
