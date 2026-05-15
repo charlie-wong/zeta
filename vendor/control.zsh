@@ -174,7 +174,9 @@ function @zeta:-zeta-switch() {
 }
 
 function @zeta:-switch-help() {
-  local _PKGS_=( cmake  go  java  nim  node  rust  helix ) app version
+  local app version _PKGS_=(
+    cmake  go  java  nim  node  rust  helix  lapce  zed
+  )
   echo
   echo "-> $(@D9 zeta-switch) $(@R3 reset) $(@G3 PKG)"
   echo
@@ -192,7 +194,7 @@ function zeta-switch() {
 
   if [[ "$1" == reset ]]; then
     case "$2" in
-      cmake|go|java|nim|node|rust|helix)
+      cmake|go|java|nim|node|rust|helix|lapce|zed)
         @zeta:-vendor-delete-link $2
         return
         ;;
@@ -208,6 +210,8 @@ function zeta-switch() {
      node) @zeta:-zeta-switch node  "$2" ;; #  node/$2/bin/*
      rust) @zeta:-zeta-switch rust  "$2" ;; #  rust/$2/bin/*
     helix) @zeta:-zeta-switch helix "$2" ;; # helix/$2/hx
+    lapce) @zeta:-zeta-switch lapce "$2" ;; # lapce/$2/bin/*
+      zed) @zeta:-zeta-switch zed   "$2" ;; #   zed/$2/bin/*
     *) echo "invalid $(@D9 vendor/)$(@R3 $1) package"; return 1 ;;
   esac
 
@@ -221,7 +225,9 @@ function zeta-switch() {
 function @zeta:comp-zeta-switch() {
   local -A opt_args
   local context state state_descr line
-  local -a _apps_=( cmake  go  java  nim  node  rust  helix ) _keys_
+  local -a _keys_ _apps_=(
+    cmake  go  java  nim  node  rust  helix  lapce  zed
+  )
 
   function comp±zeta-switch() {
     _keys_=( reset ${_apps_[@]} )
