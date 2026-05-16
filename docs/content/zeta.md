@@ -14,9 +14,10 @@ ZETA_PLUGINS=
 ZETA_GOTO_MAPS=
 ZETA_STARTUP_LOG=
 
-_ZETA_HOST_CPU_ID=
-_ZETA_HOST_SYSTEM=
-_ZETA_HOST_OS_ENV=
+_ZETA_HOST_CPU=
+_ZETA_HOST_VENDOR=
+_ZETA_HOST_OS=
+_ZETA_HOST_EXTRA=
 
 HISTFILE=         # 命令历史
 ZSH_COMPDUMP=     # 补全缓存
@@ -30,7 +31,7 @@ CARGO_HOME=       # Cargo 包安装位置
 GEM_HOME=         # Ruby Gems 包安装位置
 JAVA_HOME=        # Java 安装位置
 
-# 系统环境变量
+# 系统预定义环境变量
 OSTYPE=
 MACHTYPE=
 HOSTTYPE=

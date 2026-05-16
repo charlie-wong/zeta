@@ -2,36 +2,36 @@
 # SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
 # Repository: https://github.com/charlie-wong/zeta
 
+# 系统预定义环境变量
+# echo "HOSTTYPE=$HOSTTYPE, OSTYPE=$OSTYPE"
+# echo "MACHTYPE=$MACHTYPE, HOSTNAME=$HOSTNAME"
+
 function @zeta:host-is-linux()        { false; }
 function @zeta:host-is-arch()         { false; }
 function @zeta:host-is-debian()       { false; }
 function @zeta:host-is-ubuntu()       { false; }
 
+function @zeta:host-is-windows()      { false; }
 function @zeta:host-is-msys()         { false; }
 function @zeta:host-is-mingw()        { false; }
 function @zeta:host-is-cygwin()       { false; }
-function @zeta:host-is-windows()      { false; }
 
-# 命令 gcc -dumpmachine 显示当前平台的 triplet
-# https://wiki.osdev.org/Target_Triplet
-# https://clang.llvm.org/docs/CrossCompilation.html
-# https://llvm.org/doxygen/classllvm_1_1Triple.html
-# https://doc.rust-lang.org/nightly/rustc/platform-support.html
-
-#    Arch: x86, x64, arm, mips, thumb
-# SubArch: v7, v8, v9m
+#    Arch: x86, x86_64, arm, mips, thumb
 #  Endian: BE(Big Endian), LE(Little Endian)
-declare _ZETA_HOST_CPU_ID="$(uname -m)"
+# SubArch: v7, v8, v9m
+declare _ZETA_HOST_CPU
 
-# OS: windows, linux, arch, debian, ubuntu
-declare _ZETA_HOST_SYSTEM="$(uname -s)"
+# Vendor: microsoft, arch, debian, ubuntu
+declare _ZETA_HOST_VENDOR
+
+# Operating System: linux, macos, windows
+declare _ZETA_HOST_OS
 
 #   ABI: gnu(glibc), musl(libc), eabi(Embedded ABI), msvc, mysy, cygwin, mingw
 # Extra: hf(Hardware Float Point)
-declare _ZETA_HOST_OS_ENV
+declare _ZETA_HOST_EXTRA
 
 # https://www.binarytides.com/linux-command-to-check-distro/
-# -> uname, lsb_release
 # -> cat /proc/version
 #    contains info about kernel and distro
 # -> Ubuntu/Debian Based      CentOS/Fedora Based
@@ -46,38 +46,28 @@ declare _ZETA_HOST_OS_ENV
 #    cat /etc/*version /etc/*release /proc/version* | uniq -u
 
 function @zeta:-init-host-triplet() {
-  # 环境变量 HOSTTYPE, OSTYPE, MACHTYPE, HOSTNAME
-  case "${_ZETA_HOST_SYSTEM}" in
-    Linux)      _ZETA_HOST_SYSTEM=linux     ;;
-    MSYS*)      _ZETA_HOST_SYSTEM=msys      ;;
-    MINGW*)     _ZETA_HOST_SYSTEM=mingw     ;;
-    CYGWIN*)    _ZETA_HOST_SYSTEM=cygwin    ;;
-    Windows_NT) _ZETA_HOST_SYSTEM=windows   ;;
-  esac
+  _ZETA_HOST_CPU="$(uname -m)"
+  _ZETA_HOST_CPU="${_ZETA_HOST_CPU:l}"
 
-  eval "function @zeta:host-is-${_ZETA_HOST_SYSTEM}() { true; }"
+  _ZETA_HOST_VENDOR="$(lsb_release -is)"
+  _ZETA_HOST_VENDOR="${_ZETA_HOST_VENDOR:l}"
+  eval "function @zeta:host-is-${_ZETA_HOST_VENDOR}() { true; }"
 
-  case "${_ZETA_HOST_SYSTEM}" in
+  _ZETA_HOST_OS="$(uname -s)"
+  _ZETA_HOST_OS="${_ZETA_HOST_OS:l}"
+  eval "function @zeta:host-is-${_ZETA_HOST_OS}() { true; }"
+
+  case "${_ZETA_HOST_VENDOR}" in
     msys|mingw|cygwin)
       function @zeta:host-is-windows() { true; }
-      _ZETA_HOST_OS_ENV=${_ZETA_HOST_SYSTEM}
-      _ZETA_HOST_SYSTEM=windows
+      _ZETA_HOST_EXTRA=${_ZETA_HOST_VENDOR}
+      _ZETA_HOST_VENDOR=windows
     ;;
   esac
 
   if @zeta:host-is-linux; then
-    @zeta:has-cmd lsb_release && {
-      local distributorID="$(lsb_release -is)"
-      if [[ -n "${ZSH_VERSION}" ]]; then
-        eval 'distributorID="${distributorID:l}"' # 大写转小写
-      elif [[ -n "${BASH_VERSION}" ]]; then
-        eval 'distributorID="${distributorID@L}"' # 大写转小写
-      fi
-      eval "function @zeta:host-is-${distributorID}() { true; }"
-    }
-
-    _ZETA_HOST_OS_ENV='gnu'; # https://musl.libc.org
-    ldd --version 2>&1 | grep -q 'musl' && _ZETA_HOST_OS_ENV="musl"
+    _ZETA_HOST_EXTRA='gnu'; # https://musl.libc.org
+    ldd --version 2>&1 | grep -q 'musl' && _ZETA_HOST_EXTRA="musl"
 
     # ELF 可执行文件格式 https://man.archlinux.org/man/elf.5.en
     # https://www.kernel.org/doc/html/latest/filesystems/proc.html
@@ -102,40 +92,55 @@ function @zeta:-init-host-triplet() {
           _endian_=be # 0x02 大端序 big-endian => 网络字节顺序
         fi
 
-        if [[ -n "${_bits_}" && -n "${_endian_}" ]]; then
-          local _xinfo_="${_bits_}${_endian_}"
-        fi
+        local _bei_
+        [[ -n "${_bits_}" ]] && _bei_=".${_bits_}"
+        [[ -n "${_endian_}" ]] && _bei_+=".${_endian_}"
       }
     fi
   fi
 
-  # https://alt.fedoraproject.org/alt
+  # Fedora 可选架构 https://alt.fedoraproject.org/alt
   # 1978 -> X86, 1981 -> MIPS, 1983 -> ARM, 1991 -> PowerPC
-  case "${_ZETA_HOST_CPU_ID}" in
+  # https://uapi-group.org/specifications/specs/extension_image/#architecture
+  case "${_ZETA_HOST_CPU}" in
     # https://www.sandpile.org/x86/cpuid.htm
-    i386|i486|i586|i686|i786|x86)   _ZETA_HOST_CPU_ID=x86 ;;
-    x86_64|x86-64|amd64|x64)        _ZETA_HOST_CPU_ID=x64 ;;
-    # https://apple.fandom.com/wiki/PowerPC
-    ppc*)                           _ZETA_HOST_CPU_ID=ppc${_xinfo_}   ;;
-    # https://mips.com
-    mips*)                          _ZETA_HOST_CPU_ID=mips${_xinfo_}  ;;
-    # https://riscv.org/technical/specifications
-    riscv*)                         _ZETA_HOST_CPU_ID=riscv${_xinfo_} ;;
-    # 龙架构 https://www.loongson.cn/system/loongarch
-    loongarch*)                     _ZETA_HOST_CPU_ID=lsa${_xinfo_}   ;;
+    i386|i486|i586|i686|i786|x86)   _ZETA_HOST_CPU=x86${_bei_} ;;
+    x86_64|x86-64|amd64|x64)        _ZETA_HOST_CPU=x86${_bei_} ;;
     # https://developer.arm.com/architectures
-    arm*|aarch*|xscale)             _ZETA_HOST_CPU_ID=arm${_xinfo_}   ;;
+    arm*)                           _ZETA_HOST_CPU=arm${_bei_} ;;
+    # https://apple.fandom.com/wiki/PowerPC
+    ppc*)                           _ZETA_HOST_CPU=ppc${_bei_} ;;
+    # https://mips.com
+    mips*)                          _ZETA_HOST_CPU=mips${_bei_} ;;
+    # https://riscv.org/technical/specifications
+    riscv*)                         _ZETA_HOST_CPU=riscv${_bei_} ;;
+    # https://www.loongson.cn/system/loongarch 龙架构
+    loongarch*)                     _ZETA_HOST_CPU=loongarch${_bei_} ;;
   esac
 }
 
 @zeta:-init-host-triplet
 unset -f @zeta:-init-host-triplet
 
-# x64-linux-gnu, x64-macos-musl, arm64v8be-linux-eabihf
+# https://clang.llvm.org/docs/CrossCompilation.html
+# https://llvm.org/doxygen/classllvm_1_1Triple.html
+# https://doc.rust-lang.org/nightly/rustc/platform-support.html
+
+# https://wiki.osdev.org/Target_Triplet
+# 命令 gcc -dumpmachine 显示当前平台三元组
+# Three-Field Triplet 结构 Machine-Vendor-OperatingSystem
+
+# NOTE 构建无歧义三元组：- 分割三元组字符串，. 分割字段内字符串
+# x86.64.le-ubuntu-linux.gnu, x86.64.le-arch-linux.musl
+
 function host-triplet() {
-  if [[ -z "${_ZETA_HOST_OS_ENV}" ]]; then
-     echo "${_ZETA_HOST_CPU_ID}-${_ZETA_HOST_SYSTEM}"
-  else
-    echo "${_ZETA_HOST_CPU_ID}-${_ZETA_HOST_SYSTEM}-${_ZETA_HOST_OS_ENV}"
+  local triplet="${_ZETA_HOST_CPU}"
+  triplet+="-${_ZETA_HOST_VENDOR}"
+  triplet+="-${_ZETA_HOST_OS}"
+
+  if [[ -n "${_ZETA_HOST_EXTRA}" ]]; then
+    triplet+=".${_ZETA_HOST_EXTRA}"
   fi
+
+  echo "${triplet}"
 }
