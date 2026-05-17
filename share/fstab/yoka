@@ -17,4 +17,4 @@ PARTUUID=b3a01835-8dc9-7f4b-afad-457487970df8   none          swap      defaults
 
 ## Workspace for codes/docs/dot-files, more shorter path is well and make them sharable between multi-OS
 PARTUUID=b1bd84c9-5f41-42fd-85d1-06b3f7c3b5e7   /me           ext4      defaults                              0     0
-PARTUUID=d7a8263b-a5fe-b44e-bb2b-39a340fd5261   /me/tech      ntfs3     defaults,uid=1000,gid=1000            0     0
+PARTUUID=d7a8263b-a5fe-b44e-bb2b-39a340fd5261   /techs        ntfs3     defaults,uid=1000,gid=1000            0     0
