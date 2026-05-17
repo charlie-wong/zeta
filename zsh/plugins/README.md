@@ -1,7 +1,6 @@
 # Zsh Plugin
 
 - <https://github.com/jeffreytse/zsh-vi-mode>
-
 - <https://zdharma-continuum.github.io/Zsh-100-Commits-Club/Zsh-Plugin-Standard.html>
 
 ```zsh

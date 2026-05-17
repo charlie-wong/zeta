@@ -2,20 +2,6 @@
 # SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
 # Repository: https://github.com/charlie-wong/zeta
 
-# ESC 键 -> 模式切换
-#
-# 模式 vicmd 映射
-# i   vi-insert           进入插入模式
-# I   vi-insert-bol       进入插入模式(光标移动到行首非空字符)
-# a   vi-add-next         进入插入模式(光标移动到当前位置之后)
-# A   vi-add-eol          进入插入模式(光标移动到行尾)
-#
-# v   visual-mode         visual selection mode
-# V   visual-line-mode    visual selection mode
-#
-# R   vi-replace          Enter overwrite mode
-# r   vi-replace-chars    替换当前光标处的字符
-
 # 按键序列等待时间，单位百分之一秒，默认值 40
 KEYTIMEOUT=50 # 50/100 = 0.5 秒
 
