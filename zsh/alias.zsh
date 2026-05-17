@@ -216,7 +216,7 @@ alias lms='ls -hlt'     # 按 mtime 排序 the newest first
 alias lh='ls -hld .*(N) 2> /dev/null'
 #  alias lh='ls -hld .* 2> /dev/null' 等效 Bash 命令
 
-function ls-dot-files() {
+function ls-hidden-files() {
   local folder="$1"
   [[ -z "${folder}" ]] && folder="${PWD}"
   folder="$(realpath "${folder}")"
@@ -300,6 +300,10 @@ alias ls-alt-selections="update-alternatives --get-selections"
 # - /dev/nvmeXnYpZ    driver `nvme`      => NVMe or SSD devices
 alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
 alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
+
+# https://github.com/smartmontools/smartmontools
+# sudo apt install smartmontools 安装软件包
+alias ls-ssd-status='sudo smartctl --all /dev/nvme0'
 
 # ISO-8601 后缀 Z(Zero) 表示 UTC 时间
 # UTC Time Now        https://www.utctime.net
