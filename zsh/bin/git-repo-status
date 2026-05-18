@@ -16,7 +16,7 @@ source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
 #
 # merge 常规状态: X 表示 Index 状态, Y 表示 working tree 状态
 # merge 有冲突时: 未合并的各种状态, XY 是 D/A/U 组合
-function ls-repo-status() {
+function git-repo-status() {
   local repoName  branchName  remoteName
 
   repoName="$(git rev-parse --show-toplevel)"
@@ -188,4 +188,4 @@ function ls-repo-status() {
   fi
 }
 
-ls-repo-status $@
+git-repo-status $@

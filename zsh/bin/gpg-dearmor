@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+no-cmd gpg && exit 101
+
+[[ $# -ne 1 || ! -f "$1" ]] && {
+  echo "Usage: ${0#${0%/*}/} path/to/gpg-ascii-armored-key"
+  exit 0
+}
+
+MIME="$(file --mime "$1")"
+
+if [[ "$(echo "${MIME}" | cut -d' ' -f2)" != 'application/pgp-keys;' ]]; then
+  echo "'${MIME}' MIME Type is not for a vailid GPG key."
+  exit 102
+fi
+
+# 原始文件为二进制格式 (无需转换)
+[[ "$(echo "${MIME}" | cut -d'=' -f2)" == 'binary' ]] && {
+  echo "$1 is vailid binary GPG key."
+  exit 0
+}
+
+kpath="${1%/*}"
+kname="${1#${1%/*}/}"
+[[ -z "${kpath%${kname}}" ]] && kpath=.
+
+outkey="${kpath}/${kname}.gpg"
+echo "Output: ${outkey}"
+gpg --output "${outkey}" --dearmor "$1"

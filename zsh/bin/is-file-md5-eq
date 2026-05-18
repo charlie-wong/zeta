@@ -12,24 +12,25 @@ function no-cmd() { ! command -v "$1" > /dev/null; }
 no-cmd md5sum && exit 101
 
 [[ $# != 2 || ! -f "$1" || ! -f "$2" ]] && {
-  echo "Usage: $(@G3 is-file-md5-eq) path/to/$(@B3 file1) path/to/$(@Y3 file2)"
+  echo "Usage: $(@G3 ${0#${0%/*}/}) path/to/$(@B3 file1) path/to/$(@Y3 file2)"
   exit 102
 }
 
 hashA=$(md5sum "$1" | cut -d' ' -f1)
 [[ $? != 0 || -z "${hashA}" ]] && {
-  echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $1)"
+  echo >&2 "Calculate $(@D9 MD5) error for file $(@Y9 $1)"
   exit 103
 }
 
 hashB=$(md5sum "$2" | cut -d' ' -f1)
 [[ $? != 0 || -z "${hashB}" ]] && {
-  echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $2)"
+  echo >&2 "Calculate $(@D9 MD5) error for file $(@Y9 $2)"
   exit 104
 }
 
 if [[ "${hashA}" != "${hashB}" ]]; then
-  echo >&2 "MD5 $(@R3 NOT) equal for $(@G9 $1) and $(@Y9 $2)"
+  echo "$(@G9 ${hashA}) $(@D9 $1)"
+  echo "$(@G9 ${hashB}) $(@D9 $2)"
   exit 105
 fi
 

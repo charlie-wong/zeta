@@ -1,0 +1,57 @@
+#!/usr/bin/env zsh
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Repository: https://github.com/charlie-wong/zeta
+
+[[ -z "${ZCOLOR}" || ! -f "${ZCOLOR}" ]] && exit 255
+source "${ZCOLOR}" # 加载终端彩色消息输出显示函数库
+
+function git-log-gpg() {
+  # https://git-scm.com/docs/git-config#Documentation/git-config.txt-color
+  local r='%C(red)'        g='%C(green)'       b='%C(blue)' d
+  local y='%C(yellow)'     m='%C(magenta)'     c='%C(cyan)'      w='%C(white)'
+  local R='%C(dim red)'    G='%C(dim green)'   B='%C(dim blue)'  W='%C(dim white)'
+  local Y='%C(dim yellow)' M='%C(dim magenta)' C='%C(dim cyan)' rs='%C(reset)'
+
+  # %m    left (<), right (>) or boundary (-) mark
+  # %as   author date, short format (YYYY-MM-DD)
+  #       %ar Relative    %as Short     %ah Human-style     %ai ISO 8601-like format
+  #       %at Timestamp   %ad --date=   %aD RFC2822-style   %aI strict ISO 8601 format
+  # %ae   author email
+  #       %an Name        %ae Email     %al Email local-part (before the @ sign)
+  #       %aN Name respect .mailmap     %aL Email local-part respecting .mailmap
+  # %cs   committer date, short format (YYYY-MM-DD)
+  #       %cr Relative    %cs Short     %ch Human-style     %ci ISO 8601-like format
+  #       %ct Timestamp   %cd --date=   %cD RFC2822-style   %cI strict ISO 8601 format
+  # %ce   committer email
+  #       %cn Name        %ce Email     %cl email local-part (before the @ sign)
+  local ai="A ${c}%as ${W}%<(24,trunc)%ae${rs}"
+  local ci="C ${c}%cs ${W}%<(24,trunc)%ce${rs}"
+
+  # %G?   commit signature status    E can't be check 无公钥无法验证  N no signature   无签名
+  #       G good signature 已经验证  R good signature 由注销密钥签发  X good signature 签名超期
+  #       B bad  signature 无效签名  Y good signature 由超期密钥签发  U good signature 未知有效性
+  # %GS   show the name of the signer for a signed commit
+  # %GK   show the key used to sign a signed commit
+  # %GF   show the fingerprint of the key used to sign a signed commit
+  # %GT   show the trust level for the key used to sign a signed commit
+  # %GP   show the primary key whose subkey was used to sign a signed commit
+  local g1="%G?" g2="%GS" g3="%GK" g4="%GF" g5="%<(8)%GT" g6="%GP"
+  # 签名状态，信任等级，签名密钥，主密钥，姓名邮箱
+  local gpg="${r}${g1} ${y}${g5} ${W}SubKey=${g}${g3} ${W}PriKey=${b}${g6} ${W}${g2}${rs}"
+
+  # %h    abbreviated commit hash   %H  long commit hash
+  # %t    abbreviated tree hash     %T  long tree hash
+  # %p    abbreviated parent hash   %P  long parent hash
+  # %s    commit message subject    %b  commit message body
+  local kmit="${m}%h${rs} ${ai} ${ci} %s"
+
+  if [[ $# -eq 0 ]]; then
+    # 关闭默认分页器，显示 30 条历史记录
+    git -c core.pager='' log -30 --format="format:${kmit}%n${gpg}"
+  else
+    git log $@ --format="format:${kmit}%n${gpg}"
+  fi
+}
+
+git-log-gpg $@
