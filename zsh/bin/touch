@@ -34,18 +34,22 @@ function is-inside-git-work-tree() {
   exit
 }
 
-UserName=TODO; UserEmail=TODO; RepoURL=TODO
-[[ -f "${PWD}/$1" ]] && exit 102 # 文件已存在
+NewFilePath="${1%/*}"
+NewFileName="${1##*/}"
 
-NewFileFullPath="${PWD}/$1"
-SubPath="${1%/*}"; NewFileNameOnly="${1#*/}"
-NewFileNameOnly="${NewFileNameOnly@L}" # 转小写
-
-if [[ -n "${SubPath}" && "$1" != "${SubPath}" ]]; then
-  [[ ! -d "${PWD}/${SubPath}" ]] && mkdir -p "${PWD}/${SubPath}"
+if [[ -z "${NewFilePath%${NewFileName}}" ]]; then
+  NewFilePath="${PWD}"
+else
+  [[ "${NewFilePath:0:1}" != "/" ]] && NewFilePath="$(realpath "${PWD}/${NewFilePath}")"
+  [[ ! -d "${NewFilePath}" ]] && mkdir -p "${NewFilePath}"
 fi
 
-case "${NewFileNameOnly}" in
+NewFileFullPath="${NewFilePath}/${NewFileName}"
+[[ -f "${NewFileFullPath}" ]] && exit # 文件已存在
+
+UserName=TODO; UserEmail=TODO; RepoURL=TODO
+
+case "${NewFileName@L}" in
   *.html) isHTML=1 ;;
   *.css|*.scss) isCSS=1 ;;
   *.c|*.cc|*.cpp|*.cxx|*.h|*.hpp|*.hxx|*.go|*.rs) isLikeC=1 ;;
@@ -55,16 +59,12 @@ case "${NewFileNameOnly}" in
   *.py)  comment='#' ; shebang="#!/usr/bin/env python3" ;;
 esac
 
-[[ "${PWD}/${SubPath}" =~ "${THIS_DIR%/bin}"* ]] && {
-  NEW_XCMD_SUBCMD=1; comment='#' ; shebang="#!/usr/bin/env bash"
-}
-
 Year=$(date +%Y)
-timestamp="$(date --iso-8601=seconds)"
-if has-cmd timedatectl; then
-  timezone=$(timedatectl show | head -1 | cut -d= -f2)
+#timestamp="$(date --iso-8601=seconds)"
+#if has-cmd timedatectl; then
+#  timezone=$(timedatectl show | head -1 | cut -d= -f2)
 # timezone=$(timedatectl | awk '/Time zone/ { print $3 }')
-fi
+#fi
 
 if has-cmd git; then
   UserName="$(git config --get user.name)"
@@ -83,12 +83,12 @@ fi
 
 # Created By: ${UserName} ${timestamp} ${timezone}
 
-if (( NEW_XCMD_SUBCMD == 1 )); then
+if [[ "${NewFilePath}" == "${THIS_DIR}" ]]; then
   cat > "${NewFileFullPath}" <<EOF
-${shebang}
-${comment} SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
-${comment} SPDX-FileCopyrightText: ${Year} ${UserName} <${UserEmail}>
-${comment} Repository: ${RepoURL}
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: ${Year} ${UserName} <${UserEmail}>
+# Repository: ${RepoURL}
 
 THIS_AFP="\$(realpath "\${0}")"        # 当前文件绝对路径(含名)
 THIS_FNO="\$(basename "\${THIS_AFP}")" # 仅包含当前文件的文件名
@@ -127,7 +127,7 @@ EOF
 
 function touch-c-hdr() {
   # 头文件名有效字符 => 大小写字母, 点, 下划线, 减号
-  local headerID="$(echo ${NewFileNameOnly@U} | sed 's#[.-]#_#g')"
+  local headerID="$(echo ${NewFileName@U} | sed 's#[.-]#_#g')"
   cat > "${NewFileFullPath}" <<EOF
 // SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0 OR MIT
 // SPDX-FileCopyrightText: ${Year} ${UserName} <${UserEmail}>
@@ -200,7 +200,7 @@ EOF
 if [[ -n "${shebang}" && -n "${comment}" ]]; then
   touch-script
 elif (( isLikeC == 1 )); then
-  case "${NewFileNameOnly}" in
+  case "${NewFileName@L}" in
     *.h|*.hpp|*.hxx) touch-c-hdr ;;
     *.c|*.cpp|*.cxx|*.cc|*.rs|*.go) touch-c-src ;;
   esac
